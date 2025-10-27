@@ -1,0 +1,109 @@
+@page
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.Applicant.DashboardModel
+@{
+    ViewData["Title"] = "Applicant Dashboard";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow rounded-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Welcome, @Model.ApplicantName!</h1>
+        
+        <!-- Profile Completion Status -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Profile Status</h2>
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+                <div class="bg-blue-600 h-4 rounded-full" style="width: @(Model.ProfileCompletionPercentage)%"></div>
+            </div>
+            <p class="text-sm text-gray-600">@Model.ProfileCompletionPercentage% Complete</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <a href="/Applicant/Profile" class="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg shadow-sm transition duration-200">
+                <div class="flex items-center">
+                    <div class="p-3 bg-blue-100 rounded-full mr-4">
+                        <i class="fas fa-user-edit text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-800">Update Profile</h3>
+                        <p class="text-sm text-gray-500">Edit your personal information</p>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="/Applicant/Resume" class="bg-green-50 hover:bg-green-100 p-4 rounded-lg shadow-sm transition duration-200">
+                <div class="flex items-center">
+                    <div class="p-3 bg-green-100 rounded-full mr-4">
+                        <i class="fas fa-file-upload text-green-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-800">Upload Resume</h3>
+                        <p class="text-sm text-gray-500">Upload or update your resume</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/Jobs" class="bg-purple-50 hover:bg-purple-100 p-4 rounded-lg shadow-sm transition duration-200">
+                <div class="flex items-center">
+                    <div class="p-3 bg-purple-100 rounded-full mr-4">
+                        <i class="fas fa-briefcase text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-800">Browse Jobs</h3>
+                        <p class="text-sm text-gray-500">Find your next opportunity</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Recent Applications -->
+        <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Recent Applications</h2>
+                <a href="/Applications" class="text-sm text-blue-600 hover:underline">View All</a>
+            </div>
+            
+            @if (Model.RecentApplications.Any())
+            {
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr class="text-left text-sm text-gray-500">
+                                <th class="py-2 px-4 border-b">Job Title</th>
+                                <th class="py-2 px-4 border-b">Company</th>
+                                <th class="py-2 px-4 border-b">Applied On</th>
+                                <th class="py-2 px-4 border-b">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var app in Model.RecentApplications)
+                            {
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-4 border-b">@app.JobTitle</td>
+                                    <td class="py-3 px-4 border-b">@app.CompanyName</td>
+                                    <td class="py-3 px-4 border-b">@app.AppliedDate.ToString("MMM dd, yyyy")</td>
+                                    <td class="py-3 px-4 border-b">
+                                        <span class="px-2 py-1 text-xs rounded-full @(app.Status == "Submitted" ? "bg-blue-100 text-blue-800" : 
+                                                                                    app.Status == "In Review" ? "bg-yellow-100 text-yellow-800" :
+                                                                                    app.Status == "Accepted" ? "bg-green-100 text-green-800" : 
+                                                                                    "bg-red-100 text-red-800")">
+                                            @app.Status
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-inbox text-4xl mb-2 text-gray-300"></i>
+                    <p>You haven't applied to any jobs yet.</p>
+                    <a href="/Jobs" class="text-blue-600 hover:underline mt-2 inline-block">Browse Jobs</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+/* ===== DECORATIVE ELEMENTS AND SPECIAL CASES ===== */
+
+/* Wave Decoration Example (can use for hero backgrounds if pattern not available in Tailwind) */
+.wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    background: #D9EEE1;
+    clip-path: polygon(0 50%, 100% 20%, 100% 100%, 0% 100%);
+}
+
+/* Hide scrollbars for horizontal nav overflow (optional) */
+.sec-nav {
+    scrollbar-width: none; /* Firefox */
+}
+
+    .sec-nav::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+
+/* If you have unique animation or decorative effects, add here */
+
+/* ===== MEDIA QUERIES FOR VERY CUSTOM EFFECTS ONLY! ===== */
+
+@media (max-width: 768px) {
+    /* Example: Hide long text or big logo on mobile, if needed */
+}
+
+@media (max-width: 480px) {
+    /* Example: Custom mobile effect; use only if not possible in Tailwind! */
+}
+
+/* ===== NAVBAR FIX ===== */
+.navbar {
+    background-color: #fff !important;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030 !important;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+body {
+    padding-top: 70px !important;
+}
+/* ===== END NAVBAR FIX ===== */                

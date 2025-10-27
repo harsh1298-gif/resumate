@@ -1,0 +1,303 @@
+﻿@page
+@model ResumeProject.Pages.LoginModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Login";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - ResuMate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white shadow-xl rounded-xl w-full max-w-md p-8">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">Welcome Back!</h2>
+            <p class="text-gray-500">Please sign in to continue</p>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="text-red-600 bg-red-50 p-3 rounded-md mb-4 text-sm"></div>
+
+        <form method="post" class="space-y-5">
+            <div>
+                <label asp-for="Input.Email" class="block text-sm font-medium text-gray-700"></label>
+                <div class="mt-1">
+                    <input asp-for="Input.Email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="you@example.com" />
+                </div>
+                <span asp-validation-for="Input.Email" class="text-red-600 text-sm"></span>
+            </div>
+
+            <div>
+                <label asp-for="Input.Password" class="block text-sm font-medium text-gray-700"></label>
+                <div class="mt-1">
+                    <input asp-for="Input.Password" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••" />
+                </div>
+                <span asp-validation-for="Input.Password" class="text-red-600 text-sm"></span>
+            </div>
+
+            <!-- Forgot Password Link -->
+            <div class="text-right">
+                <button type="button" onclick="openForgotPasswordModal()" class="text-sm text-blue-600 hover:text-blue-500 font-medium">
+                    <i class="fas fa-key mr-1"></i>Forgot Password?
+                </button>
+            </div>
+
+            <div class="pt-2">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md">Log In</button>
+            </div>
+
+            <div class="text-center text-sm text-gray-500">
+                Don't have an account?
+                <a href="/ApplicantSignup" class="font-medium text-blue-600 hover:underline">Sign up</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Reset Your Password</h3>
+                <button onclick="closeForgotPasswordModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="forgotPasswordForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Choose recovery method:</label>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <input type="radio" id="emailRecovery" name="recoveryMethod" value="email" checked
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                            <label for="emailRecovery" class="ml-3 block text-sm font-medium text-gray-700">
+                                <i class="fas fa-envelope mr-2 text-blue-500"></i>
+                                Send OTP to Email
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="phoneRecovery" name="recoveryMethod" value="phone"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                            <label for="phoneRecovery" class="ml-3 block text-sm font-medium text-gray-700">
+                                <i class="fas fa-phone mr-2 text-green-500"></i>
+                                Send OTP to Phone
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="emailField">
+                    <label class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input type="email" id="recoveryEmail" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="your@email.com">
+                </div>
+
+                <div id="phoneField" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <input type="tel" id="recoveryPhone" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="+91 9876543210">
+                </div>
+
+                <div class="flex space-x-3 pt-2">
+                    <button type="button" onclick="closeForgotPasswordModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md transition">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="sendOTP()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition">
+                        <i class="fas fa-paper-plane mr-2"></i>Send OTP
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- OTP Verification Modal -->
+    <div id="otpModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Enter OTP</h3>
+                <button onclick="closeOTPModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="text-center mb-6">
+                <p class="text-gray-600" id="otpSentTo">We've sent a 6-digit OTP to your email</p>
+            </div>
+
+            <form id="otpForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Enter OTP</label>
+                    <input type="text" id="otpInput" maxlength="6" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-center text-xl tracking-widest" placeholder="000000">
+                </div>
+
+                <div class="text-center">
+                    <p class="text-sm text-gray-500" id="resendTimer">
+                        Resend OTP in <span id="countdown">60</span> seconds
+                    </p>
+                    <button type="button" id="resendBtn" onclick="resendOTP()" class="text-sm text-blue-600 hover:text-blue-500 font-medium hidden">
+                        Resend OTP
+                    </button>
+                </div>
+
+                <div class="flex space-x-3 pt-2">
+                    <button type="button" onclick="closeOTPModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md transition">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="verifyOTP()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition">
+                        <i class="fas fa-check mr-2"></i>Verify OTP
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal Functions
+        function openForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.remove('hidden');
+        }
+
+        function closeForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.add('hidden');
+        }
+
+        function closeOTPModal() {
+            document.getElementById('otpModal').classList.add('hidden');
+        }
+
+        // Toggle between email and phone fields
+        document.querySelectorAll('input[name="recoveryMethod"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const emailField = document.getElementById('emailField');
+                const phoneField = document.getElementById('phoneField');
+
+                if (this.value === 'email') {
+                    emailField.classList.remove('hidden');
+                    phoneField.classList.add('hidden');
+                } else {
+                    emailField.classList.add('hidden');
+                    phoneField.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Send OTP Function
+        function sendOTP() {
+            const method = document.querySelector('input[name="recoveryMethod"]:checked').value;
+            const email = document.getElementById('recoveryEmail').value;
+            const phone = document.getElementById('recoveryPhone').value;
+
+            if (method === 'email' && !email) {
+                alert('Please enter your email address');
+                return;
+            }
+
+            if (method === 'phone' && !phone) {
+                alert('Please enter your phone number');
+                return;
+            }
+
+            // Show loading state
+            const sendBtn = document.querySelector('#forgotPasswordForm button[onclick="sendOTP()"]');
+            const originalText = sendBtn.innerHTML;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+            sendBtn.disabled = true;
+
+            // Simulate API call (replace with actual API call)
+            setTimeout(() => {
+                // Reset button
+                sendBtn.innerHTML = originalText;
+                sendBtn.disabled = false;
+
+                // Close forgot password modal and open OTP modal
+                closeForgotPasswordModal();
+
+                // Update OTP message based on method
+                const otpSentTo = document.getElementById('otpSentTo');
+                if (method === 'email') {
+                    otpSentTo.textContent = `We've sent a 6-digit OTP to ${email}`;
+                } else {
+                    otpSentTo.textContent = `We've sent a 6-digit OTP to ${phone}`;
+                }
+
+                // Show OTP modal and start timer
+                document.getElementById('otpModal').classList.remove('hidden');
+                startResendTimer();
+            }, 2000);
+        }
+
+        // Verify OTP Function
+        function verifyOTP() {
+            const otp = document.getElementById('otpInput').value;
+
+            if (!otp || otp.length !== 6) {
+                alert('Please enter a valid 6-digit OTP');
+                return;
+            }
+
+            // Show loading state
+            const verifyBtn = document.querySelector('#otpForm button[onclick="verifyOTP()"]');
+            const originalText = verifyBtn.innerHTML;
+            verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Verifying...';
+            verifyBtn.disabled = true;
+
+            // Simulate OTP verification (replace with actual API call)
+            setTimeout(() => {
+                alert('Password reset instructions have been sent to your email/phone!');
+                closeOTPModal();
+
+                // Reset button
+                verifyBtn.innerHTML = originalText;
+                verifyBtn.disabled = false;
+            }, 2000);
+        }
+
+        // Resend OTP Timer
+        function startResendTimer() {
+            const countdownElement = document.getElementById('countdown');
+            const resendBtn = document.getElementById('resendBtn');
+            const resendTimer = document.getElementById('resendTimer');
+
+            let timeLeft = 60;
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                countdownElement.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    resendTimer.classList.add('hidden');
+                    resendBtn.classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        function resendOTP() {
+            const resendBtn = document.getElementById('resendBtn');
+            const resendTimer = document.getElementById('resendTimer');
+
+            // Show loading
+            resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Resending...';
+            resendBtn.disabled = true;
+
+            // Simulate resend (replace with actual API call)
+            setTimeout(() => {
+                alert('OTP has been resent!');
+
+                // Reset UI
+                resendBtn.innerHTML = 'Resend OTP';
+                resendBtn.disabled = false;
+                resendBtn.classList.add('hidden');
+                resendTimer.classList.remove('hidden');
+
+                // Restart timer
+                startResendTimer();
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
