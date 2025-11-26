@@ -76,8 +76,11 @@ resumate/
 │   │   ├── Browse.cshtml  # Job search with filters
 │   │   └── Details.cshtml # Job details and application
 │   ├── Recruiter/         # Recruiter-specific pages
-│   │   ├── Dashboard.cshtml      # Recruiter overview
-│   │   └── SearchApplicants.cshtml  # Find candidates
+│   │   ├── Dashboard.cshtml           # Recruiter overview
+│   │   ├── PostJob.cshtml             # Create new job posting
+│   │   ├── EditJob.cshtml             # Edit existing job
+│   │   ├── ViewApplications.cshtml    # Review applications
+│   │   └── SearchApplicants.cshtml    # Find candidates
 │   ├── Shared/            # Shared partials
 │   └── _Layout.cshtml     # Master layout
 ├── Properties/
@@ -279,12 +282,37 @@ Key NuGet packages:
 
 ### For Recruiters
 - **Recruiter Dashboard** (`/Recruiter/Dashboard`) - Overview:
-  - Active jobs count
+  - Active jobs count with totals
   - Total applications metrics
-  - Pending reviews
-  - Recent jobs listing
-  - Recent applications feed
-  - Quick action buttons
+  - Pending reviews count
+  - Recent jobs listing with application counts
+  - Recent applications feed with status indicators
+  - Quick action buttons (Post Job, Search Applicants, Analytics)
+
+- **Post Job** (`/Recruiter/PostJob`) - Create job postings:
+  - Complete job details form (title, description, location)
+  - Job type, category, and experience level selection
+  - Salary specification (optional)
+  - Skills input (comma-separated, auto-creates if needed)
+  - Closing date and external application link
+  - Post immediately or save as draft
+  - Full form validation with error messages
+
+- **Edit Job** (`/Recruiter/EditJob?id=X`) - Modify existing jobs:
+  - Edit all job fields
+  - Toggle job active/inactive status
+  - Update required skills
+  - Delete job posting with confirmation
+  - Ownership verification (only job owner can edit)
+
+- **View Applications** (`/Recruiter/ViewApplications?jobId=X`) - Review applicants:
+  - Application statistics dashboard
+  - Filter by status (Pending, In Review, Accepted, Rejected)
+  - View applicant profiles and resumes
+  - Update application status with one click
+  - Applicant contact information display
+  - Skills matching visualization
+  - Resume download buttons
 
 - **Applicant Search** (`/Recruiter/SearchApplicants`) - Find candidates:
   - Keyword search (name, skills, experience, education)

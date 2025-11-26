@@ -1,0 +1,212 @@
+@page
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Recruiter")]
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.Recruiter.EditJobModel
+@{
+    ViewData["Title"] = "Edit Job";
+}
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="/Recruiter/Dashboard" class="text-blue-600 hover:text-blue-700 font-medium mb-4 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+        </a>
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">Edit Job Posting</h1>
+        <p class="text-gray-600">Update your job posting details</p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow-lg rounded-xl p-8">
+        <form method="post">
+            <input type="hidden" asp-for="JobId" />
+            <div asp-validation-summary="ModelOnly" class="bg-red-50 text-red-600 p-4 rounded-lg mb-6"></div>
+
+            <!-- Job Status Toggle -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg flex items-center justify-between">
+                <div>
+                    <p class="font-semibold text-gray-800">Job Status</p>
+                    <p class="text-sm text-gray-600">Control whether this job is visible to applicants</p>
+                </div>
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" asp-for="IsActive" class="form-checkbox h-6 w-6 text-blue-600 rounded" />
+                    <span class="ml-3 font-medium text-gray-700">Active</span>
+                </label>
+            </div>
+
+            <!-- Basic Information -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 pb-2 border-b">
+                    <i class="fas fa-info-circle mr-2 text-blue-500"></i>Basic Information
+                </h2>
+
+                <div class="space-y-4">
+                    <!-- Job Title -->
+                    <div>
+                        <label asp-for="JobTitle" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Job Title <span class="text-red-500">*</span>
+                        </label>
+                        <input asp-for="JobTitle" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        <span asp-validation-for="JobTitle" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <!-- Job Description -->
+                    <div>
+                        <label asp-for="Description" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Job Description <span class="text-red-500">*</span>
+                        </label>
+                        <textarea asp-for="Description" rows="8" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                        <span asp-validation-for="Description" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <!-- Location -->
+                    <div>
+                        <label asp-for="Location" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Location <span class="text-red-500">*</span>
+                        </label>
+                        <input asp-for="Location" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        <span asp-validation-for="Location" class="text-red-600 text-sm"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Details -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 pb-2 border-b">
+                    <i class="fas fa-clipboard-list mr-2 text-blue-500"></i>Job Details
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Job Type -->
+                    <div>
+                        <label asp-for="JobType" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Job Type <span class="text-red-500">*</span>
+                        </label>
+                        <select asp-for="JobType" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select job type...</option>
+                            <option value="FullTime">Full Time</option>
+                            <option value="PartTime">Part Time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Internship">Internship</option>
+                            <option value="Temporary">Temporary</option>
+                        </select>
+                        <span asp-validation-for="JobType" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label asp-for="Category" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Category <span class="text-red-500">*</span>
+                        </label>
+                        <select asp-for="Category" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select category...</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Design">Design</option>
+                            <option value="HR">HR</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span asp-validation-for="Category" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <!-- Experience Level -->
+                    <div>
+                        <label asp-for="ExperienceLevel" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Experience Level <span class="text-red-500">*</span>
+                        </label>
+                        <select asp-for="ExperienceLevel" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select experience level...</option>
+                            <option value="Entry">Entry Level</option>
+                            <option value="Mid">Mid Level</option>
+                            <option value="Senior">Senior Level</option>
+                            <option value="Director">Director Level</option>
+                        </select>
+                        <span asp-validation-for="ExperienceLevel" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <!-- Salary -->
+                    <div>
+                        <label asp-for="Salary" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Annual Salary (USD)
+                        </label>
+                        <input asp-for="Salary" type="number" step="1000" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        <span asp-validation-for="Salary" class="text-red-600 text-sm"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills & Requirements -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 pb-2 border-b">
+                    <i class="fas fa-tools mr-2 text-blue-500"></i>Required Skills
+                </h2>
+
+                <div>
+                    <label asp-for="SkillsInput" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Skills <span class="text-red-500">*</span>
+                    </label>
+                    <input asp-for="SkillsInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    <span asp-validation-for="SkillsInput" class="text-red-600 text-sm"></span>
+                    <p class="text-sm text-gray-500 mt-1">Enter skills separated by commas</p>
+                </div>
+            </div>
+
+            <!-- Additional Details -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 pb-2 border-b">
+                    <i class="fas fa-calendar-alt mr-2 text-blue-500"></i>Additional Details
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Closing Date -->
+                    <div>
+                        <label asp-for="ClosingDate" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Application Closing Date
+                        </label>
+                        <input asp-for="ClosingDate" type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        <span asp-validation-for="ClosingDate" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <!-- Application Link -->
+                    <div>
+                        <label asp-for="ApplicationLink" class="block text-sm font-semibold text-gray-700 mb-2">
+                            External Application Link
+                        </label>
+                        <input asp-for="ApplicationLink" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        <span asp-validation-for="ApplicationLink" class="text-red-600 text-sm"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex gap-4">
+                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors">
+                    <i class="fas fa-save mr-2"></i>Update Job
+                </button>
+                <a href="/Recruiter/Dashboard" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-4 rounded-lg font-bold text-lg transition-colors text-center">
+                    Cancel
+                </a>
+                <button type="button" onclick="confirmDelete()" class="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors">
+                    <i class="fas fa-trash mr-2"></i>Delete
+                </button>
+            </div>
+        </form>
+
+        <!-- Delete Form (hidden) -->
+        <form method="post" asp-page-handler="Delete" id="deleteForm" class="hidden">
+            <input type="hidden" asp-for="JobId" />
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function confirmDelete() {
+            if (confirm('Are you sure you want to delete this job posting? This action cannot be undone.')) {
+                document.getElementById('deleteForm').submit();
+            }
+        }
+    </script>
+}

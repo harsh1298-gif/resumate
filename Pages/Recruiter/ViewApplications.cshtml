@@ -1,0 +1,232 @@
+@page
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Recruiter")]
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.Recruiter.ViewApplicationsModel
+@{
+    ViewData["Title"] = "View Applications";
+}
+
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="/Recruiter/Dashboard" class="text-blue-600 hover:text-blue-700 font-medium mb-4 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+        </a>
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">Applications for: @Model.Job.Title</h1>
+        <p class="text-gray-600">
+            <i class="fas fa-building mr-2"></i>@Model.Job.Company.Name
+            <span class="mx-3">•</span>
+            <i class="fas fa-map-marker-alt mr-2"></i>@Model.Job.Location
+            <span class="mx-3">•</span>
+            <i class="fas fa-clock mr-2"></i>Posted @((DateTime.UtcNow - Model.Job.PostedDate).Days) days ago
+        </p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white shadow-md rounded-xl p-4">
+            <p class="text-sm text-gray-500 mb-1">Total Applications</p>
+            <p class="text-3xl font-bold text-blue-600">@Model.Applications.Count</p>
+        </div>
+        <div class="bg-white shadow-md rounded-xl p-4">
+            <p class="text-sm text-gray-500 mb-1">Pending</p>
+            <p class="text-3xl font-bold text-yellow-600">@Model.Applications.Count(a => a.Status == ApplicationStatus.Pending)</p>
+        </div>
+        <div class="bg-white shadow-md rounded-xl p-4">
+            <p class="text-sm text-gray-500 mb-1">In Review</p>
+            <p class="text-3xl font-bold text-purple-600">@Model.Applications.Count(a => a.Status == ApplicationStatus.InReview)</p>
+        </div>
+        <div class="bg-white shadow-md rounded-xl p-4">
+            <p class="text-sm text-gray-500 mb-1">Accepted</p>
+            <p class="text-3xl font-bold text-green-600">@Model.Applications.Count(a => a.Status == ApplicationStatus.Accepted)</p>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="bg-white shadow-md rounded-xl p-4 mb-6">
+        <div class="flex flex-wrap gap-2">
+            <a href="?jobId=@Model.Job.Id" class="px-4 py-2 rounded-lg @(string.IsNullOrEmpty(Model.StatusFilter) ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200") transition-colors">
+                All (@Model.Applications.Count)
+            </a>
+            <a href="?jobId=@Model.Job.Id&status=Pending" class="px-4 py-2 rounded-lg @(Model.StatusFilter == "Pending" ? "bg-yellow-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200") transition-colors">
+                Pending (@Model.Applications.Count(a => a.Status == ApplicationStatus.Pending))
+            </a>
+            <a href="?jobId=@Model.Job.Id&status=InReview" class="px-4 py-2 rounded-lg @(Model.StatusFilter == "InReview" ? "bg-purple-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200") transition-colors">
+                In Review (@Model.Applications.Count(a => a.Status == ApplicationStatus.InReview))
+            </a>
+            <a href="?jobId=@Model.Job.Id&status=Accepted" class="px-4 py-2 rounded-lg @(Model.StatusFilter == "Accepted" ? "bg-green-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200") transition-colors">
+                Accepted (@Model.Applications.Count(a => a.Status == ApplicationStatus.Accepted))
+            </a>
+            <a href="?jobId=@Model.Job.Id&status=Rejected" class="px-4 py-2 rounded-lg @(Model.StatusFilter == "Rejected" ? "bg-red-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200") transition-colors">
+                Rejected (@Model.Applications.Count(a => a.Status == ApplicationStatus.Rejected))
+            </a>
+        </div>
+    </div>
+
+    <!-- Applications List -->
+    @if (Model.FilteredApplications.Any())
+    {
+        <div class="space-y-4">
+            @foreach (var application in Model.FilteredApplications)
+            {
+                <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-start gap-4">
+                        <!-- Profile Photo -->
+                        <div class="flex-shrink-0">
+                            @if (!string.IsNullOrEmpty(application.Applicant.ProfilePhotoPath))
+                            {
+                                <img src="@application.Applicant.ProfilePhotoPath" alt="@application.Applicant.FullName" class="w-16 h-16 rounded-full object-cover border-2 border-gray-200" />
+                            }
+                            else
+                            {
+                                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xl font-bold">
+                                    @application.Applicant.FullName.Substring(0, 1).ToUpper()
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Applicant Info -->
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">@application.Applicant.FullName</h3>
+                                    <p class="text-sm text-gray-600">
+                                        Applied on @application.ApplicationDate.ToString("MMM dd, yyyy 'at' hh:mm tt")
+                                    </p>
+                                </div>
+                                <span class="px-4 py-2 rounded-full text-sm font-semibold @(application.Status switch {
+                                    ApplicationStatus.Pending => "bg-yellow-100 text-yellow-700",
+                                    ApplicationStatus.InReview => "bg-purple-100 text-purple-700",
+                                    ApplicationStatus.Accepted => "bg-green-100 text-green-700",
+                                    ApplicationStatus.Rejected => "bg-red-100 text-red-700",
+                                    _ => "bg-gray-100 text-gray-700"
+                                })">
+                                    @application.Status.ToString()
+                                </span>
+                            </div>
+
+                            <!-- Contact Info -->
+                            <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
+                                @if (!string.IsNullOrEmpty(application.Applicant.Email))
+                                {
+                                    <span><i class="fas fa-envelope mr-1"></i>@application.Applicant.Email</span>
+                                }
+                                @if (!string.IsNullOrEmpty(application.Applicant.PhoneNumber))
+                                {
+                                    <span><i class="fas fa-phone mr-1"></i>@application.Applicant.PhoneNumber</span>
+                                }
+                                @if (!string.IsNullOrEmpty(application.Applicant.City))
+                                {
+                                    <span><i class="fas fa-map-marker-alt mr-1"></i>@application.Applicant.City</span>
+                                }
+                                @if (application.Applicant.TotalExperienceYears > 0)
+                                {
+                                    <span><i class="fas fa-briefcase mr-1"></i>@application.Applicant.TotalExperienceYears years experience</span>
+                                }
+                            </div>
+
+                            <!-- Professional Summary -->
+                            @if (!string.IsNullOrEmpty(application.Applicant.ProfessionalSummary))
+                            {
+                                <p class="text-gray-700 text-sm mb-3 line-clamp-2">
+                                    @application.Applicant.ProfessionalSummary
+                                </p>
+                            }
+
+                            <!-- Skills -->
+                            @if (application.Applicant.Skills.Any())
+                            {
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    @foreach (var skill in application.Applicant.Skills.Take(5))
+                                    {
+                                        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium">
+                                            @skill.Skill.Name
+                                        </span>
+                                    }
+                                    @if (application.Applicant.Skills.Count > 5)
+                                    {
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs">
+                                            +@(application.Applicant.Skills.Count - 5) more
+                                        </span>
+                                    }
+                                </div>
+                            }
+
+                            <!-- Action Buttons -->
+                            <div class="flex flex-wrap gap-2">
+                                <a href="/Recruiter/ViewProfile?id=@application.Applicant.Id" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                    <i class="fas fa-user mr-1"></i>View Profile
+                                </a>
+                                @if (!string.IsNullOrEmpty(application.Applicant.ResumeFilePath))
+                                {
+                                    <a href="@application.Applicant.ResumeFilePath" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                        <i class="fas fa-download mr-1"></i>Download Resume
+                                    </a>
+                                }
+
+                                <!-- Status Update Buttons -->
+                                @if (application.Status == ApplicationStatus.Pending)
+                                {
+                                    <form method="post" asp-page-handler="UpdateStatus" class="inline">
+                                        <input type="hidden" name="applicationId" value="@application.Id" />
+                                        <input type="hidden" name="newStatus" value="InReview" />
+                                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>Mark In Review
+                                        </button>
+                                    </form>
+                                }
+
+                                @if (application.Status != ApplicationStatus.Accepted)
+                                {
+                                    <form method="post" asp-page-handler="UpdateStatus" class="inline">
+                                        <input type="hidden" name="applicationId" value="@application.Id" />
+                                        <input type="hidden" name="newStatus" value="Accepted" />
+                                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                            <i class="fas fa-check mr-1"></i>Accept
+                                        </button>
+                                    </form>
+                                }
+
+                                @if (application.Status != ApplicationStatus.Rejected)
+                                {
+                                    <form method="post" asp-page-handler="UpdateStatus" class="inline">
+                                        <input type="hidden" name="applicationId" value="@application.Id" />
+                                        <input type="hidden" name="newStatus" value="Rejected" />
+                                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                            <i class="fas fa-times mr-1"></i>Reject
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- No Applications -->
+        <div class="bg-white shadow-md rounded-xl p-12 text-center">
+            <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-2xl font-bold text-gray-700 mb-2">No Applications Yet</h3>
+            <p class="text-gray-500">
+                @if (!string.IsNullOrEmpty(Model.StatusFilter))
+                {
+                    <text>No applications with status "@Model.StatusFilter"</text>
+                }
+                else
+                {
+                    <text>No one has applied to this job yet. Share it to get more visibility!</text>
+                }
+            </p>
+        </div>
+    }
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <script>
+        alert('@TempData["Success"]');
+    </script>
+}
