@@ -137,6 +137,7 @@ namespace ResumeProject.Pages
                 var recruiter = new Recruiter
                 {
                     Name = Input.FullName,
+                    Email = Input.Email,  // FIX: Add email
                     JobTitle = Input.JobTitle,
                     UserId = user.Id,
                     CompanyId = company.Id
@@ -144,8 +145,11 @@ namespace ResumeProject.Pages
                 _context.Recruiters.Add(recruiter);
                 await _context.SaveChangesAsync();
 
+                // FIX: Add user to Recruiter role
+                await _userManager.AddToRoleAsync(user, "Recruiter");
+
                 await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToPage("/Index");
+                return RedirectToPage("/Recruiter/Dashboard");  // FIX: Redirect to recruiter dashboard
             }
 
             foreach (var error in result.Errors)
