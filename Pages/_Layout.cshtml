@@ -339,7 +339,16 @@
                     <a href="/" class="nav-link">Home</a>
                     <a href="/Jobs/Browse" class="nav-link">Browse Jobs</a>
                     <a href="/RecruiterSignup" class="nav-link">For Employers</a>
-                    <a href="/Login" class="nav-link">Login</a>
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <a href="/Logout" class="nav-link">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="/Login" class="nav-link">Login</a>
+                    }
                 </div>
 
                 <!-- Search and Actions -->
@@ -398,7 +407,16 @@
                 <a href="/" class="nav-link block">Home</a>
                 <a href="/Jobs/Browse" class="nav-link block">Browse Jobs</a>
                 <a href="/RecruiterSignup" class="nav-link block">For Employers</a>
-                <a href="/Login" class="nav-link block">Login</a>
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <a href="/Logout" class="nav-link block">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                }
+                else
+                {
+                    <a href="/Login" class="nav-link block">Login</a>
+                }
             </nav>
 
             <div class="space-y-3 pt-6 border-t border-gray-700/50">
