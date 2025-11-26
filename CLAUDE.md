@@ -69,7 +69,7 @@ resumate/
 │   ├── Login.cshtml       # Authentication
 │   ├── ApplicantSignup.cshtml  # Applicant registration
 │   ├── RecruiterSignup.cshtml  # Recruiter registration
-│   ├── SignupRole.cshtml  # Role selection
+│   ├── Privacy.cshtml     # Privacy policy
 │   ├── Applicant/         # Applicant-specific pages
 │   │   └── Dashboard.cshtml
 │   ├── Shared/            # Shared partials
@@ -222,8 +222,7 @@ public class AdminPageModel : PageModel { }
 
 Currently no automated test suite. Manual testing available via:
 - `/health` - Health check endpoint
-- `Pages/DebugDatabase.cshtml` - Database testing
-- `Pages/TestDb.cshtml` - Table inspection
+- `/api/status` - Simple status check
 - `/api/debug/database` - Database diagnostics
 
 ## Dependencies
