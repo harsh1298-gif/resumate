@@ -1,0 +1,254 @@
+@page
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.Jobs.BrowseModel
+@{
+    ViewData["Title"] = "Browse Jobs";
+}
+
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Page Header -->
+    <div class="mb-8 text-center">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">Find Your Dream Job</h1>
+        <p class="text-gray-600">Discover @Model.TotalJobs opportunities matching your skills and interests</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="bg-white shadow-lg rounded-xl p-6 mb-6">
+        <form method="get" class="space-y-4">
+            <!-- Main Search Input -->
+            <div class="relative">
+                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <input type="text"
+                       name="searchTerm"
+                       value="@Model.SearchTerm"
+                       placeholder="Search by job title, skills, or keywords..."
+                       class="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg" />
+            </div>
+
+            <!-- Filter Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Location Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-map-marker-alt mr-1"></i>Location
+                    </label>
+                    <input type="text"
+                           name="location"
+                           value="@Model.Location"
+                           placeholder="City or Remote"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+
+                <!-- Job Type Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-briefcase mr-1"></i>Job Type
+                    </label>
+                    <select name="jobType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Types</option>
+                        <option value="FullTime" selected="@(Model.JobType == "FullTime")">Full Time</option>
+                        <option value="PartTime" selected="@(Model.JobType == "PartTime")">Part Time</option>
+                        <option value="Contract" selected="@(Model.JobType == "Contract")">Contract</option>
+                        <option value="Internship" selected="@(Model.JobType == "Internship")">Internship</option>
+                        <option value="Temporary" selected="@(Model.JobType == "Temporary")">Temporary</option>
+                    </select>
+                </div>
+
+                <!-- Category Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-tags mr-1"></i>Category
+                    </label>
+                    <select name="category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Categories</option>
+                        <option value="Engineering" selected="@(Model.Category == "Engineering")">Engineering</option>
+                        <option value="Marketing" selected="@(Model.Category == "Marketing")">Marketing</option>
+                        <option value="Sales" selected="@(Model.Category == "Sales")">Sales</option>
+                        <option value="Design" selected="@(Model.Category == "Design")">Design</option>
+                        <option value="HR" selected="@(Model.Category == "HR")">HR</option>
+                        <option value="Other" selected="@(Model.Category == "Other")">Other</option>
+                    </select>
+                </div>
+
+                <!-- Experience Level Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-graduation-cap mr-1"></i>Experience
+                    </label>
+                    <select name="experienceLevel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Levels</option>
+                        <option value="Entry" selected="@(Model.ExperienceLevel == "Entry")">Entry Level</option>
+                        <option value="Mid" selected="@(Model.ExperienceLevel == "Mid")">Mid Level</option>
+                        <option value="Senior" selected="@(Model.ExperienceLevel == "Senior")">Senior</option>
+                        <option value="Director" selected="@(Model.ExperienceLevel == "Director")">Director</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Salary Range -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-dollar-sign mr-1"></i>Min Salary
+                    </label>
+                    <input type="number"
+                           name="minSalary"
+                           value="@Model.MinSalary"
+                           placeholder="e.g., 50000"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-dollar-sign mr-1"></i>Max Salary
+                    </label>
+                    <input type="number"
+                           name="maxSalary"
+                           value="@Model.MaxSalary"
+                           placeholder="e.g., 150000"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-sort mr-1"></i>Sort By
+                    </label>
+                    <select name="sortBy" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="newest" selected="@(Model.SortBy == "newest")">Newest First</option>
+                        <option value="salary-high" selected="@(Model.SortBy == "salary-high")">Salary: High to Low</option>
+                        <option value="salary-low" selected="@(Model.SortBy == "salary-low")">Salary: Low to High</option>
+                        <option value="relevance" selected="@(Model.SortBy == "relevance")">Most Relevant</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-search mr-2"></i>Search Jobs
+                </button>
+                <a href="/Jobs/Browse" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-redo mr-2"></i>Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    <div class="mb-4 flex justify-between items-center">
+        <p class="text-gray-600">
+            Showing <span class="font-semibold">@Model.Jobs.Count</span> of <span class="font-semibold">@Model.TotalJobs</span> jobs
+        </p>
+        @if (!string.IsNullOrEmpty(Model.SearchTerm))
+        {
+            <p class="text-sm text-gray-500">
+                Results for "<span class="font-semibold">@Model.SearchTerm</span>"
+            </p>
+        }
+    </div>
+
+    <!-- Job Listings -->
+    @if (Model.Jobs.Any())
+    {
+        <div class="space-y-4">
+            @foreach (var job in Model.Jobs)
+            {
+                <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition-shadow border border-gray-100">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">
+                                <a href="/Jobs/Details?id=@job.Id" class="hover:text-blue-600 transition-colors">
+                                    @job.Title
+                                </a>
+                            </h3>
+                            <p class="text-lg text-gray-600 mb-2">
+                                <i class="fas fa-building mr-2"></i>@job.Company.Name
+                            </p>
+                            <div class="flex flex-wrap gap-3 text-sm text-gray-500">
+                                <span><i class="fas fa-map-marker-alt mr-1"></i>@job.Location</span>
+                                <span><i class="fas fa-briefcase mr-1"></i>@job.Type.ToString()</span>
+                                <span><i class="fas fa-clock mr-1"></i>Posted @((DateTime.UtcNow - job.PostedDate).Days) days ago</span>
+                            </div>
+                        </div>
+                        @if (job.Salary.HasValue)
+                        {
+                            <div class="text-right">
+                                <p class="text-2xl font-bold text-green-600">
+                                    $@job.Salary.Value.ToString("N0")
+                                </p>
+                                <p class="text-sm text-gray-500">per year</p>
+                            </div>
+                        }
+                    </div>
+
+                    <p class="text-gray-700 mb-4 line-clamp-2">
+                        @job.Description.Substring(0, Math.Min(200, job.Description.Length))...
+                    </p>
+
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                            @job.Category.ToString()
+                        </span>
+                        <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                            @job.ExperienceLevel.ToString() Level
+                        </span>
+                        @if (job.RequiredSkills.Any())
+                        {
+                            @foreach (var skill in job.RequiredSkills.Take(3))
+                            {
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                                    @skill.Skill.Name
+                                </span>
+                            }
+                            @if (job.RequiredSkills.Count > 3)
+                            {
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                                    +@(job.RequiredSkills.Count - 3) more
+                                </span>
+                            }
+                        }
+                    </div>
+
+                    <div class="flex gap-3">
+                        <a href="/Jobs/Details?id=@job.Id" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center px-6 py-2 rounded-lg font-semibold transition-colors">
+                            View Details
+                        </a>
+                        <button onclick="saveJob(@job.Id)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="mt-8 flex justify-center gap-2">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a href="?page=@i&searchTerm=@Model.SearchTerm&location=@Model.Location&jobType=@Model.JobType&category=@Model.Category&experienceLevel=@Model.ExperienceLevel&minSalary=@Model.MinSalary&maxSalary=@Model.MaxSalary&sortBy=@Model.SortBy"
+                       class="px-4 py-2 rounded-lg @(i == Model.CurrentPage ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300") transition-colors">
+                        @i
+                    </a>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <!-- No Results -->
+        <div class="bg-white shadow-md rounded-xl p-12 text-center">
+            <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-2xl font-bold text-gray-700 mb-2">No Jobs Found</h3>
+            <p class="text-gray-500 mb-6">Try adjusting your search criteria or filters</p>
+            <a href="/Jobs/Browse" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                Clear All Filters
+            </a>
+        </div>
+    }
+</div>
+
+<script>
+    function saveJob(jobId) {
+        // TODO: Implement save job functionality
+        alert('Save job feature coming soon!');
+    }
+</script>

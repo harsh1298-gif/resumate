@@ -1,0 +1,276 @@
+@page
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Recruiter")]
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.Recruiter.SearchApplicantsModel
+@{
+    ViewData["Title"] = "Search Applicants";
+}
+
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">Find Top Talent</h1>
+        <p class="text-gray-600">Search and filter through @Model.TotalApplicants qualified candidates</p>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="bg-white shadow-lg rounded-xl p-6 mb-6">
+        <form method="get" class="space-y-4">
+            <!-- Main Search -->
+            <div class="relative">
+                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <input type="text"
+                       name="searchTerm"
+                       value="@Model.SearchTerm"
+                       placeholder="Search by name, skills, education, or experience..."
+                       class="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg" />
+            </div>
+
+            <!-- Filters -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Location Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-map-marker-alt mr-1"></i>Location
+                    </label>
+                    <input type="text"
+                           name="location"
+                           value="@Model.Location"
+                           placeholder="City"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+
+                <!-- Skills Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-tools mr-1"></i>Skills
+                    </label>
+                    <input type="text"
+                           name="skills"
+                           value="@Model.Skills"
+                           placeholder="e.g., Python, React"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+
+                <!-- Experience Years -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-briefcase mr-1"></i>Min Experience (Years)
+                    </label>
+                    <input type="number"
+                           name="minExperience"
+                           value="@Model.MinExperience"
+                           placeholder="e.g., 3"
+                           min="0"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                </div>
+            </div>
+
+            <!-- Additional Filters -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Education -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-graduation-cap mr-1"></i>Education Level
+                    </label>
+                    <select name="educationLevel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Any Level</option>
+                        <option value="High School" selected="@(Model.EducationLevel == "High School")">High School</option>
+                        <option value="Bachelor" selected="@(Model.EducationLevel == "Bachelor")">Bachelor's Degree</option>
+                        <option value="Master" selected="@(Model.EducationLevel == "Master")">Master's Degree</option>
+                        <option value="PhD" selected="@(Model.EducationLevel == "PhD")">PhD</option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-sort mr-1"></i>Sort By
+                    </label>
+                    <select name="sortBy" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="relevance" selected="@(Model.SortBy == "relevance")">Most Relevant</option>
+                        <option value="experience" selected="@(Model.SortBy == "experience")">Most Experience</option>
+                        <option value="recent" selected="@(Model.SortBy == "recent")">Recently Updated</option>
+                        <option value="alphabetical" selected="@(Model.SortBy == "alphabetical")">Alphabetical</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-search mr-2"></i>Search Candidates
+                </button>
+                <a href="/Recruiter/SearchApplicants" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-redo mr-2"></i>Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results -->
+    <div class="mb-4 flex justify-between items-center">
+        <p class="text-gray-600">
+            Showing <span class="font-semibold">@Model.Applicants.Count</span> of <span class="font-semibold">@Model.TotalApplicants</span> candidates
+        </p>
+    </div>
+
+    <!-- Applicant Cards -->
+    @if (Model.Applicants.Any())
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            @foreach (var applicant in Model.Applicants)
+            {
+                <div class="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-shadow">
+                    <!-- Header -->
+                    <div class="flex items-start gap-4 mb-4">
+                        @if (!string.IsNullOrEmpty(applicant.ProfilePhotoPath))
+                        {
+                            <img src="@applicant.ProfilePhotoPath" alt="@applicant.FullName" class="w-20 h-20 rounded-full object-cover border-2 border-gray-200" />
+                        }
+                        else
+                        {
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-2xl font-bold">
+                                @applicant.FullName.Substring(0, 1).ToUpper()
+                            </div>
+                        }
+
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-1">@applicant.FullName</h3>
+                            @if (!string.IsNullOrEmpty(applicant.Objective))
+                            {
+                                <p class="text-sm text-gray-600 mb-2">@applicant.Objective</p>
+                            }
+                            <div class="flex flex-wrap gap-2 text-sm text-gray-500">
+                                @if (!string.IsNullOrEmpty(applicant.City))
+                                {
+                                    <span><i class="fas fa-map-marker-alt mr-1"></i>@applicant.City</span>
+                                }
+                                @if (applicant.TotalExperienceYears > 0)
+                                {
+                                    <span><i class="fas fa-briefcase mr-1"></i>@applicant.TotalExperienceYears yrs exp</span>
+                                }
+                                @if (applicant.Age > 0)
+                                {
+                                    <span><i class="fas fa-birthday-cake mr-1"></i>@applicant.Age years old</span>
+                                }
+                            </div>
+                        </div>
+
+                        @if (applicant.IsProfileComplete)
+                        {
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                <i class="fas fa-check-circle mr-1"></i>Verified
+                            </span>
+                        }
+                    </div>
+
+                    <!-- Professional Summary -->
+                    @if (!string.IsNullOrEmpty(applicant.ProfessionalSummary))
+                    {
+                        <p class="text-gray-700 text-sm mb-4 line-clamp-2">
+                            @applicant.ProfessionalSummary
+                        </p>
+                    }
+
+                    <!-- Skills -->
+                    @if (applicant.Skills.Any())
+                    {
+                        <div class="mb-4">
+                            <p class="text-xs text-gray-500 mb-2 font-medium">SKILLS</p>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach (var skill in applicant.Skills.Take(6))
+                                {
+                                    <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium">
+                                        @skill.Skill.Name
+                                    </span>
+                                }
+                                @if (applicant.Skills.Count > 6)
+                                {
+                                    <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs">
+                                        +@(applicant.Skills.Count - 6) more
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Latest Experience -->
+                    @if (applicant.Experiences.Any())
+                    {
+                        var latestExp = applicant.Experiences.OrderByDescending(e => e.StartDate).First();
+                        <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                            <p class="text-xs text-gray-500 mb-1">LATEST EXPERIENCE</p>
+                            <p class="font-semibold text-gray-800">@latestExp.JobTitle</p>
+                            <p class="text-sm text-gray-600">@latestExp.CompanyName</p>
+                            <p class="text-xs text-gray-500">
+                                @latestExp.StartDate.ToString("MMM yyyy") - @(latestExp.EndDate?.ToString("MMM yyyy") ?? "Present")
+                            </p>
+                        </div>
+                    }
+
+                    <!-- Latest Education -->
+                    @if (applicant.Education.Any())
+                    {
+                        var latestEdu = applicant.Education.OrderByDescending(e => e.GraduationYear).First();
+                        <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                            <p class="text-xs text-gray-500 mb-1">EDUCATION</p>
+                            <p class="font-semibold text-gray-800">@latestEdu.Degree</p>
+                            <p class="text-sm text-gray-600">@latestEdu.InstitutionName</p>
+                            <p class="text-xs text-gray-500">Graduated: @latestEdu.GraduationYear</p>
+                        </div>
+                    }
+
+                    <!-- Actions -->
+                    <div class="flex gap-2">
+                        <a href="/Recruiter/ViewProfile?id=@applicant.Id" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center px-4 py-2 rounded-lg font-semibold transition-colors">
+                            <i class="fas fa-eye mr-1"></i>View Profile
+                        </a>
+                        @if (!string.IsNullOrEmpty(applicant.ResumeFilePath))
+                        {
+                            <a href="@applicant.ResumeFilePath" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors" title="Download Resume">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        }
+                        <button onclick="contactApplicant(@applicant.Id)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors" title="Send Message">
+                            <i class="fas fa-envelope"></i>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="mt-8 flex justify-center gap-2">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a href="?page=@i&searchTerm=@Model.SearchTerm&location=@Model.Location&skills=@Model.Skills&minExperience=@Model.MinExperience&educationLevel=@Model.EducationLevel&sortBy=@Model.SortBy"
+                       class="px-4 py-2 rounded-lg @(i == Model.CurrentPage ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300") transition-colors">
+                        @i
+                    </a>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <!-- No Results -->
+        <div class="bg-white shadow-md rounded-xl p-12 text-center">
+            <i class="fas fa-users-slash text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-2xl font-bold text-gray-700 mb-2">No Candidates Found</h3>
+            <p class="text-gray-500 mb-6">Try adjusting your search criteria or filters</p>
+            <a href="/Recruiter/SearchApplicants" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                Clear All Filters
+            </a>
+        </div>
+    }
+</div>
+
+<script>
+    function contactApplicant(applicantId) {
+        // TODO: Implement messaging functionality
+        alert('Messaging feature coming soon!');
+    }
+</script>

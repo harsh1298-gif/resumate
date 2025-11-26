@@ -72,6 +72,12 @@ resumate/
 │   ├── Privacy.cshtml     # Privacy policy
 │   ├── Applicant/         # Applicant-specific pages
 │   │   └── Dashboard.cshtml
+│   ├── Jobs/              # Job browsing and search
+│   │   ├── Browse.cshtml  # Job search with filters
+│   │   └── Details.cshtml # Job details and application
+│   ├── Recruiter/         # Recruiter-specific pages
+│   │   ├── Dashboard.cshtml      # Recruiter overview
+│   │   └── SearchApplicants.cshtml  # Find candidates
 │   ├── Shared/            # Shared partials
 │   └── _Layout.cshtml     # Master layout
 ├── Properties/
@@ -250,6 +256,46 @@ Key NuGet packages:
 - Verify user has correct role assignment
 - Check cookie configuration
 
+## Job Search & Recruitment Features
+
+### For Applicants
+- **Job Browse** (`/Jobs/Browse`) - Advanced search with filters:
+  - Keyword search across titles, descriptions, companies, skills
+  - Location filtering
+  - Job type (Full Time, Part Time, Contract, Internship, Temporary)
+  - Category (Engineering, Marketing, Sales, Design, HR, Other)
+  - Experience level (Entry, Mid, Senior, Director)
+  - Salary range filtering
+  - Multiple sort options (newest, salary, relevance)
+  - Pagination support
+
+- **Job Details** (`/Jobs/Details?id=X`) - Full job information:
+  - Complete job description
+  - Required skills
+  - Company information
+  - Application status tracking
+  - One-click apply functionality
+  - Social sharing features
+
+### For Recruiters
+- **Recruiter Dashboard** (`/Recruiter/Dashboard`) - Overview:
+  - Active jobs count
+  - Total applications metrics
+  - Pending reviews
+  - Recent jobs listing
+  - Recent applications feed
+  - Quick action buttons
+
+- **Applicant Search** (`/Recruiter/SearchApplicants`) - Find candidates:
+  - Keyword search (name, skills, experience, education)
+  - Location filtering
+  - Skills matching (comma-separated)
+  - Minimum experience years
+  - Education level filtering
+  - Profile completeness indicators
+  - Resume download access
+  - Contact functionality
+
 ## Important Notes for AI Assistants
 
 1. **Razor Pages, not MVC**: This uses Razor Pages pattern with PageModels, not Controllers/Views
@@ -258,3 +304,5 @@ Key NuGet packages:
 4. **Namespace**: `RESUMATE_FINAL_WORKING_MODEL` (with underscores)
 5. **File Uploads**: Handle file validation carefully for security
 6. **Migrations**: Always apply migrations after model changes
+7. **Search Optimization**: Consider adding full-text search indexes for production
+8. **Authorization**: Pages use role-based authorization ([Authorize(Roles = "Role")])

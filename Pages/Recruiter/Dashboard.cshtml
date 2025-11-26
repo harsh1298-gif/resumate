@@ -1,0 +1,208 @@
+@page
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Recruiter")]
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.Recruiter.DashboardModel
+@{
+    ViewData["Title"] = "Recruiter Dashboard";
+}
+
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Welcome Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">Welcome back, @Model.RecruiterName!</h1>
+        <p class="text-gray-600">@Model.CompanyName - Manage your job postings and review applications</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white shadow-lg rounded-xl p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium mb-1">Active Jobs</p>
+                    <p class="text-3xl font-bold text-blue-600">@Model.ActiveJobsCount</p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-lg">
+                    <i class="fas fa-briefcase text-blue-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow-lg rounded-xl p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium mb-1">Total Applications</p>
+                    <p class="text-3xl font-bold text-green-600">@Model.TotalApplicationsCount</p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-lg">
+                    <i class="fas fa-file-alt text-green-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow-lg rounded-xl p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium mb-1">Pending Reviews</p>
+                    <p class="text-3xl font-bold text-yellow-600">@Model.PendingApplicationsCount</p>
+                </div>
+                <div class="bg-yellow-100 p-3 rounded-lg">
+                    <i class="fas fa-clock text-yellow-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow-lg rounded-xl p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium mb-1">This Month</p>
+                    <p class="text-3xl font-bold text-purple-600">@Model.ApplicationsThisMonth</p>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-lg">
+                    <i class="fas fa-calendar text-purple-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <a href="/Recruiter/PostJob" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg text-center font-semibold transition-colors">
+            <i class="fas fa-plus-circle mr-2"></i>Post New Job
+        </a>
+        <a href="/Recruiter/SearchApplicants" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg text-center font-semibold transition-colors">
+            <i class="fas fa-search mr-2"></i>Search Applicants
+        </a>
+        <a href="/Recruiter/Analytics" class="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg text-center font-semibold transition-colors">
+            <i class="fas fa-chart-line mr-2"></i>View Analytics
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Active Jobs List -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white shadow-lg rounded-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-briefcase mr-2 text-blue-500"></i>Your Active Jobs
+                    </h2>
+                    <a href="/Recruiter/PostJob" class="text-blue-600 hover:text-blue-700 font-medium">
+                        + Post New
+                    </a>
+                </div>
+
+                @if (Model.RecentJobs.Any())
+                {
+                    <div class="space-y-4">
+                        @foreach (var job in Model.RecentJobs)
+                        {
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-800 mb-1">@job.Title</h3>
+                                        <p class="text-sm text-gray-500">
+                                            <i class="fas fa-map-marker-alt mr-1"></i>@job.Location
+                                            <span class="mx-2">•</span>
+                                            <i class="fas fa-briefcase mr-1"></i>@job.Type.ToString()
+                                        </p>
+                                    </div>
+                                    <span class="px-3 py-1 @(job.IsActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700") rounded-full text-sm font-medium">
+                                        @(job.IsActive ? "Active" : "Closed")
+                                    </span>
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex gap-4 text-sm text-gray-600">
+                                        <span>
+                                            <i class="fas fa-file-alt mr-1"></i>
+                                            @job.Applications.Count applications
+                                        </span>
+                                        <span>
+                                            <i class="fas fa-clock mr-1"></i>
+                                            Posted @((DateTime.UtcNow - job.PostedDate).Days)d ago
+                                        </span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <a href="/Recruiter/ViewApplications?jobId=@job.Id" class="text-blue-600 hover:text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-50 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>View
+                                        </a>
+                                        <a href="/Recruiter/EditJob?id=@job.Id" class="text-gray-600 hover:text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-colors">
+                                            <i class="fas fa-edit mr-1"></i>Edit
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-12">
+                        <i class="fas fa-briefcase text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 mb-4">You haven't posted any jobs yet</p>
+                        <a href="/Recruiter/PostJob" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                            Post Your First Job
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Recent Applications -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white shadow-lg rounded-xl p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-bell mr-2 text-yellow-500"></i>Recent Applications
+                </h2>
+
+                @if (Model.RecentApplications.Any())
+                {
+                    <div class="space-y-4">
+                        @foreach (var app in Model.RecentApplications)
+                        {
+                            <div class="border-l-4 @(app.Status == ApplicationStatus.Pending ? "border-yellow-500" : app.Status == ApplicationStatus.Accepted ? "border-green-500" : "border-gray-300") pl-4 py-2">
+                                <p class="font-semibold text-gray-800">@app.Applicant.FullName</p>
+                                <p class="text-sm text-gray-600 mb-1">@app.Job.Title</p>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-gray-500">@app.ApplicationDate.ToString("MMM dd")</span>
+                                    <span class="px-2 py-1 @(app.Status == ApplicationStatus.Pending ? "bg-yellow-100 text-yellow-700" : app.Status == ApplicationStatus.Accepted ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700") rounded-full">
+                                        @app.Status.ToString()
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-8">
+                        <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500 text-sm">No applications yet</p>
+                    </div>
+                }
+
+                @if (Model.RecentApplications.Any())
+                {
+                    <a href="/Recruiter/AllApplications" class="block text-center text-blue-600 hover:text-blue-700 font-medium mt-4">
+                        View All Applications →
+                    </a>
+                }
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg rounded-xl p-6 text-white">
+                <h3 class="text-lg font-bold mb-4">Quick Actions</h3>
+                <div class="space-y-2">
+                    <a href="/Recruiter/SearchApplicants" class="block bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-lg transition-colors">
+                        <i class="fas fa-search mr-2"></i>Search Talent
+                    </a>
+                    <a href="/Recruiter/Messages" class="block bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-lg transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>Messages
+                    </a>
+                    <a href="/Recruiter/Settings" class="block bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-lg transition-colors">
+                        <i class="fas fa-cog mr-2"></i>Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
