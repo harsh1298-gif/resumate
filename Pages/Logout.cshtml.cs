@@ -16,13 +16,13 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
         public async Task<IActionResult> OnGetAsync()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToPage("/Index");
+            return RedirectToPage("/Login");
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToPage("/Index");
+            return RedirectToPage("/Login");
         }
     }
 }
