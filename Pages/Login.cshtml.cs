@@ -89,11 +89,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
                     {
                         if (await _userManager.IsInRoleAsync(user, "Recruiter"))
                         {
-                            return RedirectToPage("/RecruiterDashboard");
+                            return RedirectToPage("/Recruiter/Dashboard");
                         }
                         else if (await _userManager.IsInRoleAsync(user, "Applicant"))
                         {
-                            return RedirectToPage("/Dashboard");
+                            return RedirectToPage("/Applicant/Dashboard");
                         }
                         else if (await _userManager.IsInRoleAsync(user, "Admin"))
                         {
