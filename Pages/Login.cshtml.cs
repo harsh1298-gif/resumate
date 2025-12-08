@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication; // Add this using directive
 
-namespace ResumeProject.Pages
+namespace RESUMATE_FINAL_WORKING_MODEL.Pages
 {
     public class LoginModel : PageModel
     {
@@ -89,11 +89,11 @@ namespace ResumeProject.Pages
                     {
                         if (await _userManager.IsInRoleAsync(user, "Recruiter"))
                         {
-                            return RedirectToPage("/Recruiter/Dashboard");
+                            return RedirectToPage("/RecruiterDashboard");
                         }
                         else if (await _userManager.IsInRoleAsync(user, "Applicant"))
                         {
-                            return RedirectToPage("/Applicant/Dashboard");
+                            return RedirectToPage("/Dashboard");
                         }
                         else if (await _userManager.IsInRoleAsync(user, "Admin"))
                         {
