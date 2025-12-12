@@ -63,7 +63,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Models
         // Profile Status
         public bool IsProfileComplete { get; set; }
 
-        [Column("IsEmail/InfoId")]
+        [Column("IsEmailVerified")]
         public bool IsEmailVerified { get; set; }
 
         public bool IsActive { get; set; } = true;
@@ -81,6 +81,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Models
 
         // Navigation Properties - MATCHING YOUR EXISTING MODELS
         public List<Skill> Skills { get; set; } = new();
+        public List<ApplicantSkill> ApplicantSkills { get; set; } = new();
         public List<Experience> Experiences { get; set; } = new();
         public List<Education> Educations { get; set; } = new();
         public List<Application> Applications { get; set; } = new();
