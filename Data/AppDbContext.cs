@@ -24,6 +24,20 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Configure ApplicantSkill composite primary key
+            modelBuilder.Entity<ApplicantSkill>()
+                .HasKey(a => new { a.ApplicantId, a.SkillId });
+
+            modelBuilder.Entity<ApplicantSkill>()
+                .HasOne(a => a.Applicant)
+                .WithMany(a => a.ApplicantSkills)
+                .HasForeignKey(a => a.ApplicantId);
+
+            modelBuilder.Entity<ApplicantSkill>()
+                .HasOne(a => a.Skill)
+                .WithMany(s => s.ApplicantSkills)
+                .HasForeignKey(a => a.SkillId);
+
             // Map to actual table names
             modelBuilder.Entity<Applicant>().ToTable("Applicants");
             modelBuilder.Entity<Job>().ToTable("Jobs");
