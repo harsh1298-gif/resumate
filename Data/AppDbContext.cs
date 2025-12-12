@@ -38,6 +38,20 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Data
                 .WithMany(s => s.ApplicantSkills)
                 .HasForeignKey(a => a.SkillId);
 
+            // Configure JobRequirement composite primary key
+            modelBuilder.Entity<JobRequirement>()
+                .HasKey(jr => new { jr.JobId, jr.SkillId });
+
+            modelBuilder.Entity<JobRequirement>()
+                .HasOne(jr => jr.Job)
+                .WithMany(j => j.RequiredSkills)
+                .HasForeignKey(jr => jr.JobId);
+
+            modelBuilder.Entity<JobRequirement>()
+                .HasOne(jr => jr.Skill)
+                .WithMany(s => s.JobRequirements)
+                .HasForeignKey(jr => jr.SkillId);
+
             // Map to actual table names
             modelBuilder.Entity<Applicant>().ToTable("Applicants");
             modelBuilder.Entity<Job>().ToTable("Jobs");
