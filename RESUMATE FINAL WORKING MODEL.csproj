@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>RESUMATE_FINAL_WORKING_MODEL</RootNamespace>
+    <AssemblyName>RESUMATE_FINAL_WORKING_MODEL</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
