@@ -50,7 +50,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL
                             maxRetryDelay: TimeSpan.FromSeconds(30),
                             errorNumbersToAdd: null);
                         sqlServerOptions.CommandTimeout(60);
-                        sqlServerOptions.MigrationsAssembly("RESUMATE_FINAL_WORKING_MODEL");
+                        // MigrationsAssembly not needed - EF Core auto-detects from DbContext
                     });
 
                 // Enable sensitive data logging only in development
