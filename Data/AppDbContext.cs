@@ -30,18 +30,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Data
             modelBuilder.Entity<Company>().ToTable("Companies");
             modelBuilder.Entity<Application>().ToTable("Applications");
 
-            // Configure enums to store as strings
-            modelBuilder.Entity<Job>()
-                .Property(j => j.Type)
-                .HasConversion<string>();
-
-            modelBuilder.Entity<Job>()
-                .Property(j => j.Category)
-                .HasConversion<string>();
-
-            modelBuilder.Entity<Job>()
-                .Property(j => j.ExperienceLevel)
-                .HasConversion<string>();
+            // Note: Enums are stored as int (default) to match existing migrations
+            // If string storage is needed, create a new migration after uncommenting:
+            // modelBuilder.Entity<Job>().Property(j => j.Type).HasConversion<string>();
+            // modelBuilder.Entity<Job>().Property(j => j.Category).HasConversion<string>();
+            // modelBuilder.Entity<Job>().Property(j => j.ExperienceLevel).HasConversion<string>();
         }
     }
 }

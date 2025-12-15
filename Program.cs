@@ -273,7 +273,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL
             app.UseAuthorization();
 
             // 5. Enhanced database seeding with better error handling
-            using (var scope = app.Services.CreateScope())
+            await using (var scope = app.Services.CreateAsyncScope())
             {
                 var services = scope.ServiceProvider;
                 var scopeLogger = services.GetRequiredService<ILogger<Program>>();
@@ -284,64 +284,74 @@ namespace RESUMATE_FINAL_WORKING_MODEL
 
                     var context = services.GetRequiredService<AppDbContext>();
 
-                    // Use Migrate instead of EnsureCreated for better control
-                    scopeLogger.LogInformation("Applying pending migrations...");
-                    await context.Database.MigrateAsync();
-                    scopeLogger.LogInformation("Migrations applied successfully");
-
-                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-                    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-
-                    // Create roles if they don't exist
-                    string[] roleNames = { "Applicant", "Recruiter", "Admin" };
-                    foreach (var roleName in roleNames)
+                    // Check database connection first
+                    scopeLogger.LogInformation("Testing database connection...");
+                    if (!await context.Database.CanConnectAsync())
                     {
-                        if (!await roleManager.RoleExistsAsync(roleName))
-                        {
-                            await roleManager.CreateAsync(new IdentityRole(roleName));
-                            scopeLogger.LogInformation("Created role: {RoleName}", roleName);
-                        }
-                        else
-                        {
-                            scopeLogger.LogInformation("Role already exists: {RoleName}", roleName);
-                        }
-                    }
-
-                    // Create default admin user if not exists
-                    var adminEmail = "admin@resumate.com";
-                    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-                    if (adminUser == null)
-                    {
-                        var admin = new IdentityUser
-                        {
-                            UserName = adminEmail,
-                            Email = adminEmail,
-                            EmailConfirmed = true
-                        };
-
-                        var createAdmin = await userManager.CreateAsync(admin, "Admin12345!");
-                        if (createAdmin.Succeeded)
-                        {
-                            await userManager.AddToRoleAsync(admin, "Admin");
-                            scopeLogger.LogInformation("Created default admin user: {Email}", adminEmail);
-                        }
-                        else
-                        {
-                            scopeLogger.LogWarning("Failed to create admin user: {Errors}",
-                                string.Join(", ", createAdmin.Errors.Select(e => e.Description)));
-                        }
+                        scopeLogger.LogWarning("Cannot connect to database. Skipping migrations.");
                     }
                     else
                     {
-                        scopeLogger.LogInformation("Admin user already exists: {Email}", adminEmail);
-                    }
+                        // Use Migrate instead of EnsureCreated for better control
+                        scopeLogger.LogInformation("Applying pending migrations...");
+                        await context.Database.MigrateAsync();
+                        scopeLogger.LogInformation("Migrations applied successfully");
 
-                    scopeLogger.LogInformation("Database initialization completed successfully");
+                        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                        var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+
+                        // Create roles if they don't exist
+                        string[] roleNames = { "Applicant", "Recruiter", "Admin" };
+                        foreach (var roleName in roleNames)
+                        {
+                            if (!await roleManager.RoleExistsAsync(roleName))
+                            {
+                                await roleManager.CreateAsync(new IdentityRole(roleName));
+                                scopeLogger.LogInformation("Created role: {RoleName}", roleName);
+                            }
+                            else
+                            {
+                                scopeLogger.LogInformation("Role already exists: {RoleName}", roleName);
+                            }
+                        }
+
+                        // Create default admin user if not exists
+                        var adminEmail = "admin@resumate.com";
+                        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+                        if (adminUser == null)
+                        {
+                            var admin = new IdentityUser
+                            {
+                                UserName = adminEmail,
+                                Email = adminEmail,
+                                EmailConfirmed = true
+                            };
+
+                            var createAdmin = await userManager.CreateAsync(admin, "Admin12345!");
+                            if (createAdmin.Succeeded)
+                            {
+                                await userManager.AddToRoleAsync(admin, "Admin");
+                                scopeLogger.LogInformation("Created default admin user: {Email}", adminEmail);
+                            }
+                            else
+                            {
+                                scopeLogger.LogWarning("Failed to create admin user: {Errors}",
+                                    string.Join(", ", createAdmin.Errors.Select(e => e.Description)));
+                            }
+                        }
+                        else
+                        {
+                            scopeLogger.LogInformation("Admin user already exists: {Email}", adminEmail);
+                        }
+
+                        scopeLogger.LogInformation("Database initialization completed successfully");
+                    }
                 }
                 catch (Exception ex)
                 {
                     scopeLogger.LogError(ex, "An error occurred while seeding the database");
-                    throw;
+                    // Don't rethrow - allow app to start even if DB is unavailable
+                    scopeLogger.LogWarning("Application will continue without database initialization");
                 }
             }
 
