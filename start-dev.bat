@@ -1,0 +1,6 @@
+@echo off
+echo Cleaning up any running dotnet processes...
+taskkill /F /IM dotnet.exe 2>nul
+timeout /t 2
+echo Starting your app...
+dotnet watch run

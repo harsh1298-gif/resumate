@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace ResumeProject.Pages
+namespace RESUMATE_FINAL_WORKING_MODEL.Pages
 {
     public class IndexModel : PageModel
     {

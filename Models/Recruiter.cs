@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
 namespace RESUMATE_FINAL_WORKING_MODEL.Models
@@ -10,11 +10,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Models
         // Basic Information
         [Required]
         [MaxLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
 
         [MaxLength(100)]
         public string? JobTitle { get; set; }
@@ -25,7 +25,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Models
         [Required]
         [Phone]
         [MaxLength(15)]
-        public string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; } = null!;
 
         [MaxLength(200)]
         public string? Address { get; set; }
@@ -60,7 +60,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Models
         // Company Relationship
         [Required]
         public int CompanyId { get; set; }
-        public Company Company { get; set; }
+        public Company Company { get; set; } = null!;
 
         // Job Management
         public List<Job> Jobs { get; set; } = new();

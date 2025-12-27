@@ -1,5 +1,5 @@
 ﻿@page
-@model ResumeProject.Pages.RecruiterSignupModel
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.RecruiterSignupModel
 @{
     Layout = null;
     ViewData["Title"] = "Employer Registration";
@@ -24,88 +24,152 @@
                 <p class="text-lg mb-8">
                     Connect with top talent and grow your company with our powerful hiring platform.
                 </p>
+                <ul class="space-y-3">
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Access to qualified candidates
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        AI-powered matching system
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Streamlined hiring process
+                    </li>
+                </ul>
             </div>
         </div>
 
         <!-- Right Side: Signup Form with Light Gray Background -->
-        <div class="w-full lg:w-1/2 p-8 bg-gray-50 rounded-r-xl">
+        <div class="w-full lg:w-1/2 p-8 bg-gray-50 rounded-r-xl overflow-y-auto max-h-screen">
             <div class="max-w-md mx-auto">
                 <div class="text-center mb-8">
                     <h1 class="text-3xl font-bold text-gray-800">Create Your Employer Account</h1>
+                    <p class="text-gray-600 mt-2">Start hiring the best talent today</p>
                 </div>
 
-                <div asp-validation-summary="ModelOnly" class="text-red-600 bg-red-50 p-3 rounded-md mb-4 text-sm"></div>
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            <div>
+                                <p class="font-semibold">Please correct the following errors:</p>
+                                <div asp-validation-summary="All" class="text-sm mt-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                }
 
                 <form method="post" enctype="multipart/form-data" class="space-y-6">
                     <!-- Company Section -->
-                    <div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
                         <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4 flex items-center">
-                            <i class="fas fa-building mr-2"></i>Company Information
+                            <i class="fas fa-building mr-2 text-blue-600"></i>Company Information
                         </h2>
                         <div class="space-y-4">
                             <div>
-                                <label asp-for="Input.CompanyName"></label>
-                                <input asp-for="Input.CompanyName" class="mt-1 w-full p-2 border border-gray-300 rounded-md" />
-                                <span asp-validation-for="Input.CompanyName" class="text-red-600 text-xs"></span>
+                                <label asp-for="Input.CompanyName" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <input asp-for="Input.CompanyName" class="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., Tech Solutions Inc." />
+                                <span asp-validation-for="Input.CompanyName" class="text-red-600 text-xs mt-1 block"></span>
                             </div>
+
                             <div>
-                                <label asp-for="Input.CompanyWebsite"></label>
-                                <input asp-for="Input.CompanyWebsite" class="mt-1 w-full p-2 border border-gray-300 rounded-md" />
-                                <span asp-validation-for="Input.CompanyWebsite" class="text-red-600 text-xs"></span>
+                                <label asp-for="Input.CompanyWebsite" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <input asp-for="Input.CompanyWebsite" class="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="https://www.example.com" />
+                                <span asp-validation-for="Input.CompanyWebsite" class="text-red-600 text-xs mt-1 block"></span>
                             </div>
+
                             <div>
-                                <label asp-for="Input.Industry"></label>
-                                <select asp-for="Input.Industry" asp-items="Model.IndustryList" class="mt-1 w-full p-2 border border-gray-300 rounded-md">
-                                    <option value="">Select...</option>
+                                <label asp-for="Input.CompanyDescription" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <textarea asp-for="Input.CompanyDescription" rows="4" class="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Describe your company, its mission, and what makes it unique..."></textarea>
+                                <span asp-validation-for="Input.CompanyDescription" class="text-red-600 text-xs mt-1 block"></span>
+                                <p class="text-xs text-gray-500 mt-1">Minimum 50 characters</p>
+                            </div>
+
+                            <div>
+                                <label asp-for="Input.Industry" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <select asp-for="Input.Industry" asp-items="Model.IndustryList" class="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Select Industry --</option>
                                 </select>
-                                <span asp-validation-for="Input.Industry" class="text-red-600 text-xs"></span>
+                                <span asp-validation-for="Input.Industry" class="text-red-600 text-xs mt-1 block"></span>
                             </div>
+
                             <div>
-                                <label asp-for="Input.CompanySize"></label>
-                                <select asp-for="Input.CompanySize" asp-items="Model.CompanySizeList" class="mt-1 w-full p-2 border border-gray-300 rounded-md">
-                                    <option value="">Select...</option>
+                                <label asp-for="Input.CompanySize" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <select asp-for="Input.CompanySize" asp-items="Model.CompanySizeList" class="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">-- Select Company Size --</option>
                                 </select>
-                                <span asp-validation-for="Input.CompanySize" class="text-red-600 text-xs"></span>
+                                <span asp-validation-for="Input.CompanySize" class="text-red-600 text-xs mt-1 block"></span>
                             </div>
+
                             <div>
-                                <label asp-for="Input.CompanyLogo"></label>
-                                <input asp-for="Input.CompanyLogo" type="file" class="mt-1 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0" />
-                                <span asp-validation-for="Input.CompanyLogo" class="text-red-600 text-xs"></span>
+                                <label asp-for="Input.CompanyLogo" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <input asp-for="Input.CompanyLogo" type="file" accept="image/*" class="mt-1 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                                <span asp-validation-for="Input.CompanyLogo" class="text-red-600 text-xs mt-1 block"></span>
+                                <p class="text-xs text-gray-500 mt-1">Max size: 5MB. Formats: JPG, PNG, GIF</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Your Details Section -->
-                    <div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
                         <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4 flex items-center">
-                            <i class="fas fa-user-tie mr-2"></i>Your Details
+                            <i class="fas fa-user-tie mr-2 text-blue-600"></i>Your Details
                         </h2>
                         <div class="space-y-4">
                             <div>
-                                <label asp-for="Input.FullName"></label>
-                                <input asp-for="Input.FullName" class="mt-1 w-full p-2 border border-gray-300 rounded-md" />
-                                <span asp-validation-for="Input.FullName" class="text-red-600 text-xs"></span>
+                                <label asp-for="Input.FullName" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <input asp-for="Input.FullName" class="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="John Doe" />
+                                <span asp-validation-for="Input.FullName" class="text-red-600 text-xs mt-1 block"></span>
                             </div>
+
                             <div>
-                                <label asp-for="Input.JobTitle"></label>
-                                <input asp-for="Input.JobTitle" class="mt-1 w-full p-2 border border-gray-300 rounded-md" />
-                                <span asp-validation-for="Input.JobTitle" class="text-red-600 text-xs"></span>
+                                <label asp-for="Input.JobTitle" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <input asp-for="Input.JobTitle" class="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., HR Manager, Recruiter" />
+                                <span asp-validation-for="Input.JobTitle" class="text-red-600 text-xs mt-1 block"></span>
                             </div>
+
                             <div>
-                                <label asp-for="Input.Email"></label>
-                                <input asp-for="Input.Email" class="mt-1 w-full p-2 border border-gray-300 rounded-md" />
-                                <span asp-validation-for="Input.Email" class="text-red-600 text-xs"></span>
+                                <label asp-for="Input.Email" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <input asp-for="Input.Email" type="email" class="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="john@company.com" />
+                                <span asp-validation-for="Input.Email" class="text-red-600 text-xs mt-1 block"></span>
                             </div>
+
                             <div>
-                                <label asp-for="Input.Password"></label>
-                                <input asp-for="Input.Password" type="password" class="mt-1 w-full p-2 border border-gray-300 rounded-md" />
-                                <span asp-validation-for="Input.Password" class="text-red-600 text-xs"></span>
+                                <label asp-for="Input.PhoneNumber" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <input asp-for="Input.PhoneNumber" type="tel" class="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="+1 (555) 123-4567" />
+                                <span asp-validation-for="Input.PhoneNumber" class="text-red-600 text-xs mt-1 block"></span>
+                                <p class="text-xs text-gray-500 mt-1">Optional</p>
+                            </div>
+
+                            <div>
+                                <label asp-for="Input.Password" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <input asp-for="Input.Password" type="password" class="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••" />
+                                <span asp-validation-for="Input.Password" class="text-red-600 text-xs mt-1 block"></span>
+                                <p class="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+                            </div>
+
+                            <div>
+                                <label asp-for="Input.ConfirmPassword" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                                <input asp-for="Input.ConfirmPassword" type="password" class="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••" />
+                                <span asp-validation-for="Input.ConfirmPassword" class="text-red-600 text-xs mt-1 block"></span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="pt-4 text-center">
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Create Account</button>
+                   
+                    <div class="pt-4">
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Create Account
+                        </button>
+                    </div>
+
+                    <div class="text-center text-sm text-gray-600">
+                        Already have an account?
+                        <a href="/Login" class="text-blue-600 hover:underline font-medium">Sign in</a>
                     </div>
                 </form>
             </div>
@@ -113,6 +177,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <partial name="_ValidationScriptsPartial" />
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 </body>
 </html>

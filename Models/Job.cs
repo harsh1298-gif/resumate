@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -11,13 +11,13 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Models
 
         [Required]
         [MaxLength(100)]
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
 
         [Required]
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
 
         [Required]
-        public string Location { get; set; }
+        public string Location { get; set; } = null!;
 
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? Salary { get; set; }
@@ -27,11 +27,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Models
         public JobCategory Category { get; set; }
 
         public int CompanyId { get; set; }
-        public Company Company { get; set; }
+        public Company Company { get; set; } = null!;
 
         // UNCOMMENTED - Add Recruiter back
         public int RecruiterId { get; set; }
-        public Recruiter Recruiter { get; set; }
+        public Recruiter Recruiter { get; set; } = null!;
 
         // UNCOMMENTED - Add collections back
         public List<JobRequirement> RequiredSkills { get; set; } = new();

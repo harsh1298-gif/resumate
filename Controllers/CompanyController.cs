@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using RESUMATE_FINAL_WORKING_MODEL.Models;
 
 namespace RESUMATE_FINAL_WORKING_MODEL.Controllers

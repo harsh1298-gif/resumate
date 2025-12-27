@@ -1,4 +1,4 @@
-﻿namespace RESUMATE_FINAL_WORKING_MODEL.Models
+namespace RESUMATE_FINAL_WORKING_MODEL.Models
 {
     public class ApplicantSkill
     {

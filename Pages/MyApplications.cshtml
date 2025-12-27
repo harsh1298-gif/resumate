@@ -1,0 +1,234 @@
+@page
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.MyApplicationsModel
+@{
+    ViewData["Title"] = "My Applications";
+}
+
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+            <h1 class="text-3xl sm:text-4xl font-bold mb-2">My Applications</h1>
+            <p class="text-blue-100 text-base sm:text-lg">Track and manage your job applications</p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Success/Error Messages -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-green-800">
+                    <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+                </p>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p class="text-red-800">
+                    <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+                </p>
+            </div>
+        }
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-2xl font-bold text-gray-900">@Model.Statistics.TotalApplications</div>
+                <div class="text-sm text-gray-600">Total</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-2xl font-bold text-yellow-600">@Model.Statistics.PendingCount</div>
+                <div class="text-sm text-gray-600">Pending</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-2xl font-bold text-blue-600">@Model.Statistics.UnderReviewCount</div>
+                <div class="text-sm text-gray-600">Reviewing</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-2xl font-bold text-purple-600">@Model.Statistics.ShortlistedCount</div>
+                <div class="text-sm text-gray-600">Shortlisted</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-2xl font-bold text-indigo-600">@Model.Statistics.InterviewCount</div>
+                <div class="text-sm text-gray-600">Interview</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-2xl font-bold text-green-600">@Model.Statistics.AcceptedCount</div>
+                <div class="text-sm text-gray-600">Accepted</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-2xl font-bold text-red-600">@Model.Statistics.RejectedCount</div>
+                <div class="text-sm text-gray-600">Rejected</div>
+            </div>
+        </div>
+
+        <!-- Filters and Sort -->
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6 mb-6">
+            <form method="get" class="flex flex-col sm:flex-row gap-4">
+                <!-- Status Filter -->
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+                    <select name="StatusFilter" onchange="this.form.submit()"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Applications</option>
+                        <option value="Pending" selected="@(Model.StatusFilter == "Pending")">Pending</option>
+                        <option value="Under Review" selected="@(Model.StatusFilter == "Under Review")">Under Review</option>
+                        <option value="Shortlisted" selected="@(Model.StatusFilter == "Shortlisted")">Shortlisted</option>
+                        <option value="Interview" selected="@(Model.StatusFilter == "Interview")">Interview</option>
+                        <option value="Accepted" selected="@(Model.StatusFilter == "Accepted")">Accepted</option>
+                        <option value="Rejected" selected="@(Model.StatusFilter == "Rejected")">Rejected</option>
+                        <option value="Withdrawn" selected="@(Model.StatusFilter == "Withdrawn")">Withdrawn</option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                    <select name="SortBy" onchange="this.form.submit()"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="Recent" selected="@(Model.SortBy == "Recent")">Most Recent</option>
+                        <option value="Oldest" selected="@(Model.SortBy == "Oldest")">Oldest First</option>
+                        <option value="Company" selected="@(Model.SortBy == "Company")">Company Name</option>
+                        <option value="Status" selected="@(Model.SortBy == "Status")">Status</option>
+                    </select>
+                </div>
+
+                <!-- Clear Filters -->
+                <div class="flex items-end">
+                    <a asp-page="/MyApplications"
+                       class="w-full sm:w-auto px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-center">
+                        Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Applications List -->
+        @if (Model.HasApplications)
+        {
+            <div class="space-y-4">
+                @foreach (var app in Model.Applications)
+                {
+                    <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 border-l-4 @(app.Status == "Accepted" || app.Status == "Hired" ? "border-green-500" : app.Status == "Rejected" ? "border-red-500" : app.Status == "Shortlisted" ? "border-purple-500" : "border-blue-500")">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <!-- Left Side: Job Info -->
+                            <div class="flex items-start space-x-4 flex-1">
+                                <img src="@app.CompanyLogo" alt="@app.CompanyName"
+                                     class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-xl font-bold text-gray-900 mb-1">@app.JobTitle</h3>
+                                    <p class="text-lg text-gray-700 mb-2">@app.CompanyName</p>
+
+                                    <div class="flex flex-wrap gap-2 mb-3">
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                                            <i class="fas fa-map-marker-alt mr-1"></i>@app.Location
+                                        </span>
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                                            <i class="fas fa-briefcase mr-1"></i>@app.JobType
+                                        </span>
+                                        @if (app.Salary.HasValue)
+                                        {
+                                            <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                                                <i class="fas fa-rupee-sign mr-1"></i>@Model.GetFormattedSalary(app.Salary)
+                                            </span>
+                                        }
+                                    </div>
+
+                                    <p class="text-sm text-gray-500">
+                                        <i class="fas fa-clock mr-1"></i>Applied @Model.GetRelativeTime(app.ApplicationDate)
+                                        <span class="mx-2">•</span>
+                                        @app.ApplicationDate.ToString("MMM dd, yyyy")
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Right Side: Status & Actions -->
+                            <div class="flex flex-col items-start lg:items-end space-y-3">
+                                <!-- Status Badge -->
+                                <span class="px-4 py-2 @Model.GetStatusColor(app.Status) rounded-full text-sm font-medium">
+                                    <i class="@Model.GetStatusIcon(app.Status) mr-1"></i>@app.Status
+                                </span>
+
+                                <!-- Action Buttons -->
+                                <div class="flex gap-2">
+                                    @if (app.IsJobActive)
+                                    {
+                                        <a asp-page="/JobDetails" asp-route-id="@app.JobId"
+                                           class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm">
+                                            <i class="fas fa-eye mr-1"></i>View Job
+                                        </a>
+                                    }
+
+                                    @if (app.Status == "Pending" || app.Status == "Under Review")
+                                    {
+                                        <form method="post" asp-page-handler="Withdraw" asp-route-applicationId="@app.Id"
+                                              onsubmit="return confirm('Are you sure you want to withdraw this application?');">
+                                            <button type="submit"
+                                                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+                                                <i class="fas fa-times mr-1"></i>Withdraw
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <!-- No Applications -->
+            <div class="bg-white rounded-lg shadow p-12 text-center">
+                <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">No Applications Yet</h3>
+                <p class="text-gray-600 mb-6">
+                    @if (!string.IsNullOrEmpty(Model.StatusFilter))
+                    {
+                        <span>No applications found with status "@Model.StatusFilter".</span>
+                    }
+                    else
+                    {
+                        <span>You haven't applied to any jobs yet. Start browsing jobs to find your perfect match!</span>
+                    }
+                </p>
+                <a asp-page="/BrowseJobs"
+                   class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    <i class="fas fa-search mr-2"></i>Browse Jobs
+                </a>
+            </div>
+        }
+
+        <!-- Tips Section -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center">
+                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                Application Tips
+            </h3>
+            <ul class="space-y-2 text-sm text-blue-800">
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mt-1 mr-2 flex-shrink-0"></i>
+                    <span>Keep your profile and resume updated for better chances</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mt-1 mr-2 flex-shrink-0"></i>
+                    <span>Check your email regularly for updates from recruiters</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mt-1 mr-2 flex-shrink-0"></i>
+                    <span>Follow up on pending applications after 1-2 weeks</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mt-1 mr-2 flex-shrink-0"></i>
+                    <span>Don't withdraw applications unless you have a good reason</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

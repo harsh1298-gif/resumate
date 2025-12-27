@@ -77,8 +77,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages.Applicant
             if (!string.IsNullOrEmpty(applicant.Address)) completedFields++;
             if (!string.IsNullOrEmpty(applicant.ProfessionalSummary)) completedFields++;
             if (!string.IsNullOrEmpty(applicant.ResumeFileName)) completedFields++;
-            if (applicant.Skills?.Any() == true) completedFields++;
-
+            if (applicant.ApplicantSkills?.Any() == true) completedFields++;
             return (int)((double)completedFields / totalFields * 100);
         }
     }
@@ -91,3 +90,4 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages.Applicant
         public string Status { get; set; } = "Submitted";
     }
 }
+

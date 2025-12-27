@@ -1,0 +1,373 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using RESUMATE_FINAL_WORKING_MODEL.Data;
+using RESUMATE_FINAL_WORKING_MODEL.Models;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+
+namespace RESUMATE_FINAL_WORKING_MODEL.Pages
+{
+    [Authorize]
+    public class EditProfileModel : PageModel
+    {
+        private readonly AppDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<EditProfileModel> _logger;
+
+        public EditProfileModel(
+            AppDbContext context,
+            UserManager<IdentityUser> userManager,
+            IWebHostEnvironment environment,
+            ILogger<EditProfileModel> logger)
+        {
+            _context = context;
+            _userManager = userManager;
+            _environment = environment;
+            _logger = logger;
+        }
+
+        [BindProperty]
+        [Required(ErrorMessage = "Full name is required")]
+        [StringLength(100)]
+        public string FullName { get; set; } = string.Empty;
+
+        [BindProperty]
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string Email { get; set; } = string.Empty;
+
+        [BindProperty]
+        [Required(ErrorMessage = "Phone number is required")]
+        [Phone(ErrorMessage = "Invalid phone number")]
+        [StringLength(15)]
+        public string PhoneNumber { get; set; } = string.Empty;
+
+        [BindProperty]
+        [Required(ErrorMessage = "Date of birth is required")]
+        [DataType(DataType.Date)]
+        public DateTime DateOfBirth { get; set; } = DateTime.Now.AddYears(-25);
+
+        [BindProperty]
+        [StringLength(200)]
+        public string? Address { get; set; }
+
+        [BindProperty]
+        [StringLength(50)]
+        public string? City { get; set; }
+
+        [BindProperty]
+        [StringLength(50)]
+        public string? State { get; set; }
+
+        [BindProperty]
+        [StringLength(10)]
+        public string? Pincode { get; set; }
+
+        [BindProperty]
+        [StringLength(1000)]
+        public string? ProfessionalSummary { get; set; }
+
+        [BindProperty]
+        [StringLength(500)]
+        public string? Objective { get; set; }
+
+        [BindProperty]
+        public IFormFile? ProfilePhoto { get; set; }
+
+        [BindProperty]
+        public IFormFile? ResumeFile { get; set; }
+
+        public string? CurrentPhotoPath { get; set; }
+        public string? CurrentResumePath { get; set; }
+        public int ApplicantId { get; set; }
+        public bool IsNewProfile { get; set; }
+        public string UserName { get; set; } = string.Empty;
+
+        public async Task<IActionResult> OnGetAsync()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    _logger.LogWarning("User not found");
+                    return RedirectToPage("/Login");
+                }
+
+                UserName = user.UserName ?? "User";
+
+                // Use fully qualified name to avoid namespace conflict
+                var applicant = await _context.Applicants
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(a => a.UserId == user.Id);
+
+                if (applicant == null)
+                {
+                    // New profile - set defaults
+                    _logger.LogInformation("Creating new profile for user {UserId}", user.Id);
+                    IsNewProfile = true;
+                    Email = user.Email ?? string.Empty;
+                    return Page();
+                }
+
+                // Existing profile - load data (only use properties that exist)
+                IsNewProfile = false;
+                ApplicantId = applicant.Id;
+                FullName = applicant.FullName ?? string.Empty;
+                Email = applicant.Email ?? user.Email ?? string.Empty;
+                PhoneNumber = applicant.PhoneNumber ?? string.Empty;
+                DateOfBirth = applicant.DateOfBirth != default ? applicant.DateOfBirth : DateTime.Now.AddYears(-25);
+                Address = applicant.Address;
+                City = applicant.City;
+                Pincode = applicant.Pincode;
+                ProfessionalSummary = applicant.ProfessionalSummary;
+                Objective = applicant.Objective;
+
+                // Only use properties that definitely exist in your model
+                CurrentPhotoPath = applicant.ProfilePhotoPath;
+                CurrentResumePath = applicant.ResumeFilePath;
+
+                _logger.LogInformation("Profile loaded successfully for applicant {ApplicantId}", applicant.Id);
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading profile");
+                TempData["ErrorMessage"] = "Error loading profile.";
+                return RedirectToPage("/Dashboard");
+            }
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            try
+            {
+                _logger.LogInformation("=== PROFILE UPDATE/CREATE STARTED ===");
+
+                // Validate age
+                var age = DateTime.Today.Year - DateOfBirth.Year;
+                if (DateOfBirth > DateTime.Today.AddYears(-age)) age--;
+
+                if (age < 16)
+                {
+                    ModelState.AddModelError(nameof(DateOfBirth), "You must be at least 16 years old.");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogWarning("Model validation failed");
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                    _logger.LogWarning("Validation errors: {Errors}", string.Join(", ", errors));
+                    TempData["ErrorMessage"] = "Please correct the errors in the form.";
+                    return await LoadPageDataAsync();
+                }
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    _logger.LogWarning("User not authenticated");
+                    return RedirectToPage("/Login");
+                }
+
+                _logger.LogInformation("User ID: {UserId}", user.Id);
+
+                // Use fully qualified name
+                var applicant = await _context.Applicants
+                    .FirstOrDefaultAsync(a => a.UserId == user.Id);
+
+                bool isNewRecord = applicant == null;
+
+                if (isNewRecord)
+                {
+                    // Create new applicant profile
+                    _logger.LogInformation("Creating NEW applicant profile");
+
+                    applicant = new Models.Applicant // Use Models.Applicant to be explicit
+                    {
+                        UserId = user.Id,
+                        FullName = FullName,
+                        Email = Email,
+                        PhoneNumber = PhoneNumber,
+                        DateOfBirth = DateOfBirth,
+                        Address = Address,
+                        City = City,
+                        Pincode = Pincode,
+                        ProfessionalSummary = ProfessionalSummary,
+                        Objective = Objective,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    _context.Applicants.Add(applicant);
+                }
+                else
+                {
+                    // Update existing profile - only update properties that exist
+                    _logger.LogInformation("UPDATING existing applicant ID: {ApplicantId}", applicant.Id);
+
+                    applicant.FullName = FullName;
+                    applicant.Email = Email;
+                    applicant.PhoneNumber = PhoneNumber;
+                    applicant.DateOfBirth = DateOfBirth;
+                    applicant.Address = Address;
+                    applicant.City = City;
+                    applicant.Pincode = Pincode;
+                    applicant.ProfessionalSummary = ProfessionalSummary;
+                    applicant.Objective = Objective;
+                    applicant.UpdatedAt = DateTime.UtcNow;
+
+                    _context.Applicants.Update(applicant);
+                }
+
+                // Handle profile photo upload (same as before)
+                if (ProfilePhoto != null && ProfilePhoto.Length > 0)
+                {
+                    _logger.LogInformation("Processing profile photo upload...");
+
+                    // Validate file type
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                    var extension = Path.GetExtension(ProfilePhoto.FileName).ToLowerInvariant();
+
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError(nameof(ProfilePhoto), "Invalid file type. Only JPG, PNG, and GIF images are allowed.");
+                        return await LoadPageDataAsync();
+                    }
+
+                    // Validate file size (max 5MB)
+                    if (ProfilePhoto.Length > 5 * 1024 * 1024)
+                    {
+                        ModelState.AddModelError(nameof(ProfilePhoto), "Profile photo must be less than 5MB.");
+                        return await LoadPageDataAsync();
+                    }
+
+                    var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "profiles");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    var uniqueFileName = $"{user.Id}_{Guid.NewGuid()}{extension}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ProfilePhoto.CopyToAsync(fileStream);
+                    }
+
+                    // Delete old photo if exists
+                    if (!string.IsNullOrEmpty(applicant.ProfilePhotoPath))
+                    {
+                        var oldPhotoPath = Path.Combine(_environment.WebRootPath, applicant.ProfilePhotoPath.TrimStart('/'));
+                        if (System.IO.File.Exists(oldPhotoPath))
+                        {
+                            System.IO.File.Delete(oldPhotoPath);
+                        }
+                    }
+
+                    applicant.ProfilePhotoPath = $"/uploads/profiles/{uniqueFileName}";
+                    _logger.LogInformation("Photo uploaded: {Path}", applicant.ProfilePhotoPath);
+                }
+
+                // Handle resume upload (same as before)
+                if (ResumeFile != null && ResumeFile.Length > 0)
+                {
+                    _logger.LogInformation("Processing resume upload...");
+
+                    // Validate file type
+                    var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
+                    var extension = Path.GetExtension(ResumeFile.FileName).ToLowerInvariant();
+
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError(nameof(ResumeFile), "Invalid file type. Only PDF, DOC, and DOCX files are allowed for resumes.");
+                        return await LoadPageDataAsync();
+                    }
+
+                    // Validate file size (max 10MB)
+                    if (ResumeFile.Length > 10 * 1024 * 1024)
+                    {
+                        ModelState.AddModelError(nameof(ResumeFile), "Resume must be less than 10MB.");
+                        return await LoadPageDataAsync();
+                    }
+
+                    var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "resumes");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    var uniqueFileName = $"{user.Id}_{Guid.NewGuid()}{extension}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ResumeFile.CopyToAsync(fileStream);
+                    }
+
+                    // Delete old resume if exists
+                    if (!string.IsNullOrEmpty(applicant.ResumeFilePath))
+                    {
+                        var oldResumePath = Path.Combine(_environment.WebRootPath, applicant.ResumeFilePath.TrimStart('/'));
+                        if (System.IO.File.Exists(oldResumePath))
+                        {
+                            System.IO.File.Delete(oldResumePath);
+                        }
+                    }
+
+                    applicant.ResumeFilePath = $"/uploads/resumes/{uniqueFileName}";
+                    _logger.LogInformation("Resume uploaded: {Path}", applicant.ResumeFilePath);
+                }
+
+                // Save changes
+                _logger.LogInformation("Saving changes to database...");
+                var saveResult = await _context.SaveChangesAsync();
+                _logger.LogInformation("Save result: {Result} rows affected", saveResult);
+
+                TempData["SuccessMessage"] = isNewRecord
+                    ? "✅ Profile created successfully!"
+                    : "✅ Profile updated successfully!";
+
+                _logger.LogInformation("=== PROFILE {Action} COMPLETED ===", isNewRecord ? "CREATE" : "UPDATE");
+
+                return RedirectToPage("/Dashboard");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database error updating profile: {Message}", dbEx.InnerException?.Message ?? dbEx.Message);
+                TempData["ErrorMessage"] = $"Database error: {dbEx.InnerException?.Message ?? dbEx.Message}";
+                return await LoadPageDataAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ERROR updating profile: {Message}", ex.Message);
+                TempData["ErrorMessage"] = $"Error: {ex.Message}";
+                return await LoadPageDataAsync();
+            }
+        }
+
+        private async Task<IActionResult> LoadPageDataAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                UserName = user.UserName ?? "User";
+
+                var applicant = await _context.Applicants
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(a => a.UserId == user.Id);
+
+                if (applicant != null)
+                {
+                    CurrentPhotoPath = applicant.ProfilePhotoPath;
+                    CurrentResumePath = applicant.ResumeFilePath;
+                }
+            }
+            return Page();
+        }
+    }
+}

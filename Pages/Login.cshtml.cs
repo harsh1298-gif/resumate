@@ -1,30 +1,32 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication; // Add this using directive
 
-namespace ResumeProject.Pages
+namespace RESUMATE_FINAL_WORKING_MODEL.Pages
 {
     public class LoginModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
             _logger = logger;
         }
 
         [BindProperty]
         public InputModel Input { get; set; } = new InputModel();
 
-        public string ReturnUrl { get; set; } = string.Empty;
+        public string? ReturnUrl { get; set; }
 
         [TempData]
-        public string ErrorMessage { get; set; } = string.Empty;
+        public string? ErrorMessage { get; set; }
 
         public class InputModel
         {
@@ -50,8 +52,7 @@ namespace ResumeProject.Pages
                 ModelState.AddModelError(string.Empty, ErrorMessage);
             }
 
-            returnUrl ??= Url.Content("~/");
-            ReturnUrl = returnUrl;
+            ReturnUrl = returnUrl ?? Url.Content("~/");
         }
 
         public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
@@ -65,8 +66,10 @@ namespace ResumeProject.Pages
 
             try
             {
-                // FIXED: Use the correct SignOutAsync method
-                await _signInManager.SignOutAsync();
+                if (User.Identity?.IsAuthenticated == true)
+                {
+                    await _signInManager.SignOutAsync();
+                }
 
                 var result = await _signInManager.PasswordSignInAsync(
                     Input.Email,
@@ -77,12 +80,39 @@ namespace ResumeProject.Pages
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User {Email} logged in successfully.", Input.Email);
-                    return LocalRedirect(returnUrl);
+
+                    // Get the signed-in user
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+                    if (user != null)
+                    {
+                        // Check role and redirect accordingly
+                        if (await _userManager.IsInRoleAsync(user, "Recruiter"))
+                        {
+                            _logger.LogInformation("User {Email} redirected to RecruiterDashboard", Input.Email);
+                            return RedirectToPage("/RecruiterDashboard");
+                        }
+                        else if (await _userManager.IsInRoleAsync(user, "Applicant"))
+                        {
+                            _logger.LogInformation("User {Email} redirected to Dashboard (Applicant)", Input.Email);
+                            return RedirectToPage("/Dashboard");
+                        }
+                        else if (await _userManager.IsInRoleAsync(user, "Admin"))
+                        {
+                            _logger.LogInformation("User {Email} redirected to Index (Admin)", Input.Email);
+                            return RedirectToPage("/Index"); // Admin redirect - update if you have AdminDashboard
+                        }
+                    }
+
+                    // Default fallback to home page if no role found
+                    _logger.LogWarning("User {Email} has no recognized role, redirecting to home", Input.Email);
+                    return RedirectToPage("/Index");
                 }
+
                 if (result.RequiresTwoFactor)
                 {
                     return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
                 }
+
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account {Email} locked out.", Input.Email);
@@ -90,49 +120,14 @@ namespace ResumeProject.Pages
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt. Please check your email and password.");
-                    _logger.LogWarning("Invalid login attempt for user {Email}.", Input.Email);
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred during login for user {Email}.", Input.Email);
-                ModelState.AddModelError(string.Empty, "An error occurred during login. Please try again.");
-                return Page();
-            }
-        }
-
-        // Optional: Demo login method for testing
-        public async Task<IActionResult> OnPostDemoLoginAsync(string role = "Applicant")
-        {
-            string demoEmail = "";
-            string demoPassword = "Demo@123";
-
-            switch (role.ToLower())
-            {
-                case "admin":
-                    demoEmail = "admin@resumate.com";
-                    break;
-                case "recruiter":
-                    demoEmail = "recruiter@resumate.com";
-                    break;
-                case "applicant":
-                default:
-                    demoEmail = "applicant@resumate.com";
-                    break;
-            }
-
-            var result = await _signInManager.PasswordSignInAsync(demoEmail, demoPassword, isPersistent: false, lockoutOnFailure: false);
-
-            if (result.Succeeded)
-            {
-                _logger.LogInformation("Demo user {Email} logged in successfully.", demoEmail);
-                return RedirectToPage("/Index");
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Demo login failed. Please ensure demo users are seeded in the database.");
+                _logger.LogError(ex, "Login error for {Email}", Input.Email);
+                ModelState.AddModelError(string.Empty, "Login failed.");
                 return Page();
             }
         }

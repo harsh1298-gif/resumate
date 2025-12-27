@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Http;
 using System.IO.Compression;
 using RESUMATE_FINAL_WORKING_MODEL.Data;
 using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Http.Features;
+using System.IO;
 
 namespace RESUMATE_FINAL_WORKING_MODEL
 {
@@ -88,12 +90,20 @@ namespace RESUMATE_FINAL_WORKING_MODEL
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
+            // Configure form options for file uploads
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 10485760; // 10MB limit
+                options.ValueLengthLimit = 10485760;
+                options.MemoryBufferThreshold = 1024 * 1024; // 1MB
+            });
+
             // Configure cookie settings
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromDays(30);
-                options.LoginPath = "/ApplicantSignup";
+                options.LoginPath = "/Login";
                 options.AccessDeniedPath = "/Error";
                 options.SlidingExpiration = true;
                 options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
@@ -104,12 +114,23 @@ namespace RESUMATE_FINAL_WORKING_MODEL
                 {
                     OnRedirectToLogin = context =>
                     {
-                        context.Response.StatusCode = 401;
+                        // For API calls, return 401 instead of redirect
+                        if (context.Request.Path.StartsWithSegments("/api"))
+                        {
+                            context.Response.StatusCode = 401;
+                            return Task.CompletedTask;
+                        }
+                        context.Response.Redirect(context.RedirectUri);
                         return Task.CompletedTask;
                     },
                     OnRedirectToAccessDenied = context =>
                     {
-                        context.Response.StatusCode = 403;
+                        if (context.Request.Path.StartsWithSegments("/api"))
+                        {
+                            context.Response.StatusCode = 403;
+                            return Task.CompletedTask;
+                        }
+                        context.Response.Redirect(context.RedirectUri);
                         return Task.CompletedTask;
                     }
                 };
@@ -117,7 +138,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL
 
             // 4. Add health checks with database check
             builder.Services.AddHealthChecks()
-                .AddSqlServer(connectionString);
+                .AddSqlServer(connectionString, timeout: TimeSpan.FromSeconds(10));
 
             // Add response compression
             builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
@@ -173,6 +194,9 @@ namespace RESUMATE_FINAL_WORKING_MODEL
             {
                 options.HeaderName = "X-CSRF-TOKEN";
                 options.SuppressXFrameOptionsHeader = false;
+                options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+                    ? CookieSecurePolicy.SameAsRequest
+                    : CookieSecurePolicy.Always;
             });
 
             // Add logging
@@ -181,10 +205,13 @@ namespace RESUMATE_FINAL_WORKING_MODEL
                 logging.ClearProviders();
                 logging.AddConsole();
                 logging.AddDebug();
-                logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+                if (!builder.Environment.IsDevelopment())
+                {
+                    logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+                }
             });
 
-            // Add services to the container.
+            // Add services to the container
             builder.Services.AddRazorPages();
 
             var app = builder.Build();
@@ -220,12 +247,13 @@ namespace RESUMATE_FINAL_WORKING_MODEL
                     headers["X-Frame-Options"] = "DENY";
                     headers["X-XSS-Protection"] = "1; mode=block";
                     headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+                    headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()";
 
                     // More flexible CSP for production
                     headers["Content-Security-Policy"] =
                         "default-src 'self'; " +
-                        "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; " +
-                        "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; " +
+                        "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
+                        "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
                         "img-src 'self' data: https:; " +
                         "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " +
                         "connect-src 'self';";
@@ -250,19 +278,32 @@ namespace RESUMATE_FINAL_WORKING_MODEL
             app.UseResponseCaching();
 
             app.UseHttpsRedirection();
+
+            // Configure static files with proper caching
             app.UseStaticFiles(new StaticFileOptions
             {
                 OnPrepareResponse = ctx =>
                 {
-                    // Cache static files for 30 days
-                    ctx.Context.Response.Headers["Cache-Control"] = "public,max-age=2592000";
-                    ctx.Context.Response.Headers["ETag"] = $"\"{DateTime.UtcNow.Ticks}\"";
+                    var path = ctx.Context.Request.Path.Value ?? string.Empty;
+
+                    // Don't cache uploaded files
+                    if (path.StartsWith("/uploads/"))
+                    {
+                        ctx.Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+                        ctx.Context.Response.Headers["Pragma"] = "no-cache";
+                        ctx.Context.Response.Headers["Expires"] = "0";
+                    }
+                    else
+                    {
+                        // Cache static assets for 30 days
+                        ctx.Context.Response.Headers["Cache-Control"] = "public,max-age=2592000";
+                    }
                 }
             });
 
             app.UseRouting();
 
-            // Add security headers
+            // Add security headers for forwarded requests
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -282,12 +323,65 @@ namespace RESUMATE_FINAL_WORKING_MODEL
                 {
                     scopeLogger.LogInformation("Starting database initialization...");
 
-                    var context = services.GetRequiredService<AppDbContext>();
+                    var dbContext = services.GetRequiredService<AppDbContext>();
 
-                    // Use Migrate instead of EnsureCreated for better control
+                    // Log the actual connection string being used
+                    var actualConnectionString = dbContext.Database.GetConnectionString();
+                    scopeLogger.LogInformation($"Actual connection string from DbContext: {actualConnectionString}");
+
+                    // Test if we can connect - with detailed error info
+                    scopeLogger.LogInformation("Testing database connection...");
+
+                    try
+                    {
+                        var canConnect = await dbContext.Database.CanConnectAsync();
+                        scopeLogger.LogInformation($"Can connect to database: {canConnect}");
+
+                        if (!canConnect)
+                        {
+                            scopeLogger.LogError("Cannot connect to database! Connection test returned false.");
+                            var connBuilder = new SqlConnectionStringBuilder(actualConnectionString);
+                            scopeLogger.LogError($"Server: {connBuilder.DataSource}");
+                            scopeLogger.LogError($"Database: {connBuilder.InitialCatalog}");
+                        }
+                    }
+                    catch (Exception connEx)
+                    {
+                        scopeLogger.LogError(connEx, "Connection test threw an exception!");
+                        scopeLogger.LogError($"Error: {connEx.Message}");
+                        if (connEx.InnerException != null)
+                        {
+                            scopeLogger.LogError($"Inner Error: {connEx.InnerException.Message}");
+                        }
+                        throw;
+                    }
+
+                    // NOTE: Database drop disabled - data will persist between restarts
+                    // Uncomment below ONLY if you need to reset the database completely
+                    // if (builder.Environment.IsDevelopment())
+                    // {
+                    //     scopeLogger.LogInformation("Dropping existing database (if exists)...");
+                    //     await dbContext.Database.EnsureDeletedAsync();
+                    //     scopeLogger.LogInformation("Database dropped successfully");
+                    // }
+
+                    // Apply all pending migrations
                     scopeLogger.LogInformation("Applying pending migrations...");
-                    await context.Database.MigrateAsync();
+                    await dbContext.Database.MigrateAsync();
                     scopeLogger.LogInformation("Migrations applied successfully");
+
+                    // Create uploads directory if it doesn't exist
+                    var webRootPath = builder.Environment.WebRootPath;
+                    var uploadsPath = Path.Combine(webRootPath, "uploads", "profiles");
+                    if (!Directory.Exists(uploadsPath))
+                    {
+                        Directory.CreateDirectory(uploadsPath);
+                        scopeLogger.LogInformation("Created uploads directory: {UploadsPath}", uploadsPath);
+                    }
+                    else
+                    {
+                        scopeLogger.LogInformation("Uploads directory already exists: {UploadsPath}", uploadsPath);
+                    }
 
                     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
@@ -298,8 +392,16 @@ namespace RESUMATE_FINAL_WORKING_MODEL
                     {
                         if (!await roleManager.RoleExistsAsync(roleName))
                         {
-                            await roleManager.CreateAsync(new IdentityRole(roleName));
-                            scopeLogger.LogInformation("Created role: {RoleName}", roleName);
+                            var roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
+                            if (roleResult.Succeeded)
+                            {
+                                scopeLogger.LogInformation("Created role: {RoleName}", roleName);
+                            }
+                            else
+                            {
+                                scopeLogger.LogWarning("Failed to create role {RoleName}: {Errors}",
+                                    roleName, string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+                            }
                         }
                         else
                         {
@@ -319,11 +421,12 @@ namespace RESUMATE_FINAL_WORKING_MODEL
                             EmailConfirmed = true
                         };
 
-                        var createAdmin = await userManager.CreateAsync(admin, "Admin12345!");
+                        var createAdmin = await userManager.CreateAsync(admin, "Admin@12345");
                         if (createAdmin.Succeeded)
                         {
                             await userManager.AddToRoleAsync(admin, "Admin");
                             scopeLogger.LogInformation("Created default admin user: {Email}", adminEmail);
+                            scopeLogger.LogInformation("Admin credentials - Email: {Email}, Password: Admin@12345", adminEmail);
                         }
                         else
                         {
@@ -334,6 +437,13 @@ namespace RESUMATE_FINAL_WORKING_MODEL
                     else
                     {
                         scopeLogger.LogInformation("Admin user already exists: {Email}", adminEmail);
+
+                        // Ensure admin has the Admin role
+                        if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+                        {
+                            await userManager.AddToRoleAsync(adminUser, "Admin");
+                            scopeLogger.LogInformation("Added Admin role to existing admin user");
+                        }
                     }
 
                     scopeLogger.LogInformation("Database initialization completed successfully");
@@ -341,7 +451,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL
                 catch (Exception ex)
                 {
                     scopeLogger.LogError(ex, "An error occurred while seeding the database");
-                    throw;
+                    // Don't throw in production - let app start even if seeding fails
+                    if (builder.Environment.IsDevelopment())
+                    {
+                        throw;
+                    }
                 }
             }
 
@@ -359,77 +473,92 @@ namespace RESUMATE_FINAL_WORKING_MODEL
                             name = e.Key,
                             status = e.Value.Status.ToString(),
                             exception = e.Value.Exception?.Message,
-                            duration = e.Value.Duration
+                            duration = e.Value.Duration.TotalMilliseconds
                         }),
-                        totalDuration = report.TotalDuration
+                        totalDuration = report.TotalDuration.TotalMilliseconds
                     };
-                    await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(response, new JsonSerializerOptions
+                    {
+                        WriteIndented = true
+                    }));
                 }
             });
 
-            // Enhanced database test endpoint
-            app.MapGet("/api/debug/database", async (AppDbContext context) =>
+            // Enhanced database test endpoint (only in development)
+            if (app.Environment.IsDevelopment())
             {
-                try
+                app.MapGet("/api/debug/database", async (AppDbContext context) =>
                 {
-                    var canConnect = await context.Database.CanConnectAsync();
-
-                    int applicantsCount = 0;
-                    int usersCount = 0;
-
                     try
                     {
-                        applicantsCount = await context.Applicants.CountAsync();
-                    }
-                    catch
-                    {
-                        applicantsCount = -1;
-                    }
+                        var canConnect = await context.Database.CanConnectAsync();
 
-                    try
-                    {
-                        usersCount = await context.Users.CountAsync();
-                    }
-                    catch
-                    {
-                        usersCount = -1;
-                    }
+                        int applicantsCount = 0;
+                        int usersCount = 0;
 
-                    var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
-                    var appliedMigrations = await context.Database.GetAppliedMigrationsAsync();
-
-                    return Results.Json(new
-                    {
-                        status = "success",
-                        database = new
+                        try
                         {
-                            canConnect,
-                            applicantsCount,
-                            usersCount,
-                            pendingMigrations = pendingMigrations.ToArray(),
-                            appliedMigrations = appliedMigrations.ToArray()
-                        },
-                        timestamp = DateTime.UtcNow
-                    });
-                }
-                catch (Exception ex)
-                {
-                    return Results.Json(new
+                            applicantsCount = await context.Applicants.CountAsync();
+                        }
+                        catch
+                        {
+                            applicantsCount = -1;
+                        }
+
+                        try
+                        {
+                            usersCount = await context.Users.CountAsync();
+                        }
+                        catch
+                        {
+                            usersCount = -1;
+                        }
+
+                        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+                        var appliedMigrations = await context.Database.GetAppliedMigrationsAsync();
+
+                        return Results.Json(new
+                        {
+                            status = "success",
+                            database = new
+                            {
+                                canConnect,
+                                applicantsCount,
+                                usersCount,
+                                pendingMigrations = pendingMigrations.ToArray(),
+                                appliedMigrations = appliedMigrations.ToArray(),
+                                connectionString = context.Database.GetConnectionString()?.Split(';').FirstOrDefault()
+                            },
+                            timestamp = DateTime.UtcNow
+                        });
+                    }
+                    catch (Exception ex)
                     {
-                        status = "error",
-                        error = ex.Message,
-                        details = ex.ToString(),
-                        timestamp = DateTime.UtcNow
-                    }, statusCode: 500);
-                }
-            });
+                        return Results.Json(new
+                        {
+                            status = "error",
+                            error = ex.Message,
+                            innerException = ex.InnerException?.Message,
+                            stackTrace = ex.StackTrace,
+                            timestamp = DateTime.UtcNow
+                        }, statusCode: 500);
+                    }
+                });
+            }
 
             app.MapRazorPages();
 
             // Add a simple status endpoint
-            app.MapGet("/api/status", () => new { status = "OK", timestamp = DateTime.UtcNow });
+            app.MapGet("/api/status", () => new
+            {
+                status = "OK",
+                environment = app.Environment.EnvironmentName,
+                timestamp = DateTime.UtcNow
+            });
 
             logger.LogInformation("Application startup completed - ready to accept requests");
+            logger.LogInformation("Navigate to /ApplicantSignup to create an account");
+            logger.LogInformation("Health check available at /health");
 
             await app.RunAsync();
         }

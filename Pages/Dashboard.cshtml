@@ -1,0 +1,613 @@
+@page
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="min-h-screen bg-gray-50">
+    <!-- Responsive Header -->
+    <div class="bg-white shadow sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-3 sm:gap-0">
+                <div class="flex flex-col sm:flex-row sm:items-center w-full sm:w-auto">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+                    <span class="mt-2 sm:mt-0 sm:ml-3 px-3 py-1 bg-green-100 text-green-800 text-xs sm:text-sm font-medium rounded-full inline-block w-fit">
+                        Welcome, @Model.UserName!
+                    </span>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-end">
+                    <a asp-page="/Index" class="text-gray-600 hover:text-gray-900 text-sm sm:text-base">Home</a>
+                    <form method="post" asp-page="/Logout">
+                        <button type="submit" class="bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+            <!-- Profile Completion Alert - Responsive -->
+            @if (!Model.IsProfileComplete)
+            {
+                <div class="mb-6 sm:mb-8 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 sm:p-6 shadow-sm">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex items-start sm:items-center space-x-3 sm:space-x-4 w-full sm:w-auto">
+                            <div class="bg-yellow-100 p-2 sm:p-3 rounded-full flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-yellow-600 text-lg sm:text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-base sm:text-lg font-semibold text-yellow-800">Complete Your Profile</h3>
+                                <p class="text-yellow-700 mt-1 text-sm sm:text-base">Your profile is only @Model.ProfileCompletion% complete. Finish setting up your profile to increase your job match chances.</p>
+                            </div>
+                        </div>
+                        <a asp-page="/EditProfile" class="w-full sm:w-auto text-center bg-yellow-600 hover:bg-yellow-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-colors duration-200 shadow-sm text-sm sm:text-base whitespace-nowrap">
+                            Complete Profile
+                        </a>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mt-4">
+                        <div class="flex justify-between text-xs sm:text-sm text-yellow-800 mb-2">
+                            <span>Profile Completion</span>
+                            <span class="font-semibold">@Model.ProfileCompletion%</span>
+                        </div>
+                        <div class="w-full bg-yellow-200 rounded-full h-2">
+                            <div class="bg-yellow-600 h-2 rounded-full transition-all duration-500" style="width: @Model.ProfileCompletion%"></div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Personal Information Card - Responsive -->
+            <div class="bg-white shadow-xl rounded-xl p-4 sm:p-6 mb-6 sm:mb-8 border-t-4 border-blue-600">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-user-circle text-blue-600 mr-2 sm:mr-3"></i>
+                        Personal Information
+                    </h2>
+                    <a asp-page="/EditProfile" class="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base w-full sm:w-auto justify-center">
+                        <i class="fas fa-edit mr-2"></i>
+                        Edit Details
+                    </a>
+                </div>
+
+                @if (Model.Applicant != null)
+                {
+                    <!-- Full Profile Information - Responsive -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <!-- Left Column -->
+                        <div class="space-y-3 sm:space-y-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-blue-600 text-sm sm:text-base"></i>
+                                </div>
+                                <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                    <p class="text-xs sm:text-sm font-medium text-gray-500">Full Name</p>
+                                    <p class="text-base sm:text-lg font-semibold text-gray-900 break-words">@Model.Applicant.FullName</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-envelope text-green-600 text-sm sm:text-base"></i>
+                                </div>
+                                <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                    <p class="text-xs sm:text-sm font-medium text-gray-500">Email Address</p>
+                                    <p class="text-base sm:text-lg font-semibold text-gray-900 break-all">@Model.Applicant.Email</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-phone text-purple-600 text-sm sm:text-base"></i>
+                                </div>
+                                <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                    <p class="text-xs sm:text-sm font-medium text-gray-500">Phone Number</p>
+                                    <p class="text-base sm:text-lg font-semibold text-gray-900">@Model.GetFormattedPhone(Model.Applicant.PhoneNumber)</p>
+                                </div>
+                            </div>
+
+                            @if (Model.Applicant.DateOfBirth != default)
+                            {
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-birthday-cake text-orange-600 text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-medium text-gray-500">Date of Birth</p>
+                                        <p class="text-base sm:text-lg font-semibold text-gray-900">@Model.Applicant.DateOfBirth.ToString("MMMM dd, yyyy") (@(DateTime.Now.Year - Model.Applicant.DateOfBirth.Year) years old)</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Right Column - Responsive -->
+                        <div class="space-y-3 sm:space-y-4">
+                            @if (!string.IsNullOrEmpty(Model.Applicant.Address))
+                            {
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-map-marker-alt text-red-600 text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-medium text-gray-500">Address</p>
+                                        <p class="text-base sm:text-lg font-semibold text-gray-900 break-words">@Model.Applicant.Address</p>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.Applicant.City))
+                            {
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-city text-indigo-600 text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-medium text-gray-500">City</p>
+                                        <p class="text-base sm:text-lg font-semibold text-gray-900">@Model.Applicant.City</p>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.Applicant.Pincode))
+                            {
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-pink-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-mail-bulk text-pink-600 text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-medium text-gray-500">Pincode</p>
+                                        <p class="text-base sm:text-lg font-semibold text-gray-900">@Model.Applicant.Pincode</p>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (Model.Applicant.HasResume && !string.IsNullOrEmpty(Model.Applicant.ResumeFilePath))
+                            {
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-file-pdf text-red-600 text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-medium text-gray-500">Resume (PDF)</p>
+                                        <a href="@Model.Applicant.ResumeFilePath" target="_blank" class="text-base sm:text-lg font-semibold text-blue-600 hover:text-blue-800 hover:underline break-words">
+                                            View Resume <i class="fas fa-external-link-alt text-xs sm:text-sm ml-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-exclamation-triangle text-red-600 text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-medium text-gray-500">Resume</p>
+                                        <a asp-page="/ResumeBuilder" class="text-base sm:text-lg font-semibold text-blue-600 hover:text-blue-800 hover:underline">
+                                            Upload Resume <i class="fas fa-upload text-xs sm:text-sm ml-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <!-- Basic User Info (from Identity) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-blue-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">Username</p>
+                                    <p class="text-lg font-semibold text-gray-900">@Model.UserName</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-envelope text-green-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">Email Address</p>
+                                    <p class="text-lg font-semibold text-gray-900">@Model.UserEmail</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-info-circle text-yellow-600 text-xl mt-1 mr-3"></i>
+                                <div>
+                                    <h4 class="font-semibold text-yellow-800 mb-1">Complete Your Profile</h4>
+                                    <p class="text-sm text-yellow-700 mb-3">Add more details to your profile to increase your visibility to recruiters.</p>
+                                    <a asp-page="/EditProfile" class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm font-medium">
+                                        <i class="fas fa-plus-circle mr-2"></i>
+                                        Complete Profile
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Quick Stats - Responsive -->
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
+                <!-- Profile Status -->
+                <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow">
+                    <div class="p-4 sm:p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-blue-500 rounded-md p-2 sm:p-3">
+                                <i class="fas fa-user text-white text-base sm:text-lg"></i>
+                            </div>
+                            <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                <p class="text-xs sm:text-sm font-medium text-gray-500 truncate">Profile Status</p>
+                                <p class="text-base sm:text-lg font-medium text-gray-900">@(Model.IsProfileComplete ? "Complete" : "Incomplete")</p>
+                                <div class="w-full bg-gray-200 rounded-full h-1 mt-2">
+                                    <div class="bg-green-500 h-1 rounded-full transition-all duration-300" style="width: @Model.ProfileCompletion%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Applications -->
+                <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow">
+                    <div class="p-4 sm:p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-green-500 rounded-md p-2 sm:p-3">
+                                <i class="fas fa-file-alt text-white text-base sm:text-lg"></i>
+                            </div>
+                            <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                <p class="text-xs sm:text-sm font-medium text-gray-500 truncate">Applications</p>
+                                <p class="text-base sm:text-lg font-medium text-gray-900">@Model.ApplicationsCount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Views -->
+                <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow">
+                    <div class="p-4 sm:p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-purple-500 rounded-md p-2 sm:p-3">
+                                <i class="fas fa-eye text-white text-base sm:text-lg"></i>
+                            </div>
+                            <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                <p class="text-xs sm:text-sm font-medium text-gray-500 truncate">Profile Views</p>
+                                <p class="text-base sm:text-lg font-medium text-gray-900">@Model.ProfileViews</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match Score -->
+                <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow">
+                    <div class="p-4 sm:p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-orange-500 rounded-md p-2 sm:p-3">
+                                <i class="fas fa-star text-white text-base sm:text-lg"></i>
+                            </div>
+                            <div class="ml-3 sm:ml-4 flex-1 min-w-0">
+                                <p class="text-xs sm:text-sm font-medium text-gray-500 truncate">Match Score</p>
+                                <p class="text-base sm:text-lg font-medium text-gray-900">@Model.MatchScore%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Summary & Details - Responsive -->
+            @if (Model.Applicant != null)
+            {
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                    @if (!string.IsNullOrEmpty(Model.Applicant.ProfessionalSummary))
+                    {
+                        <div class="lg:col-span-2 bg-white shadow rounded-lg p-4 sm:p-6">
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center">
+                                <i class="fas fa-user-tie text-blue-600 mr-2 text-base sm:text-lg"></i>
+                                Professional Summary
+                            </h3>
+                            <p class="text-sm sm:text-base text-gray-700 leading-relaxed">@Model.Applicant.ProfessionalSummary</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Applicant.Objective))
+                    {
+                        <div class="bg-white shadow rounded-lg p-4 sm:p-6">
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center">
+                                <i class="fas fa-bullseye text-green-600 mr-2 text-base sm:text-lg"></i>
+                                Career Objective
+                            </h3>
+                            <p class="text-sm sm:text-base text-gray-700 leading-relaxed">@Model.Applicant.Objective</p>
+                        </div>
+                    }
+                </div>
+
+                <!-- Skills Section - Responsive -->
+                @if (Model.Applicant.ApplicantSkills?.Any() == true)
+                {
+                    <div class="bg-white shadow rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center">
+                            <i class="fas fa-tools text-purple-600 mr-2 text-base sm:text-lg"></i>
+                            Skills & Expertise
+                        </h3>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach (var applicantSkill in Model.Applicant.ApplicantSkills)
+                            {
+                                <span class="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 rounded-full text-xs sm:text-sm font-medium border border-blue-200">
+                                    @applicantSkill.Skill?.Name
+                                </span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Experience Section - Responsive -->
+                @if (Model.Applicant.Experiences?.Any() == true)
+                {
+                    <div class="bg-white shadow rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center">
+                            <i class="fas fa-briefcase text-orange-600 mr-2 text-base sm:text-lg"></i>
+                            Work Experience
+                        </h3>
+                        <div class="space-y-4 sm:space-y-6">
+                            @foreach (var exp in Model.Applicant.Experiences.OrderByDescending(e => e.StartDate))
+                            {
+                                <div class="border-l-4 border-blue-500 pl-3 sm:pl-4 py-2">
+                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-2">
+                                        <div class="flex-1">
+                                            <h4 class="text-base sm:text-lg font-semibold text-gray-900">@exp.Position</h4>
+                                            <p class="text-sm sm:text-base text-blue-600 font-medium">@exp.Company</p>
+                                        </div>
+                                        <span class="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap w-fit">
+                                            @exp.StartDate.ToString("MMM yyyy") - @(exp.EndDate?.ToString("MMM yyyy") ?? "Present")
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Education Section - Responsive -->
+                @if (Model.Applicant.Educations?.Any() == true)
+                {
+                    <div class="bg-white shadow rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center">
+                            <i class="fas fa-graduation-cap text-green-600 mr-2 text-base sm:text-lg"></i>
+                            Education
+                        </h3>
+                        <div class="space-y-4 sm:space-y-6">
+                            @foreach (var edu in Model.Applicant.Educations.OrderByDescending(e => e.GraduationYear))
+                            {
+                                <div class="border-l-4 border-green-500 pl-3 sm:pl-4 py-2">
+                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-2">
+                                        <div class="flex-1">
+                                            <h4 class="text-base sm:text-lg font-semibold text-gray-900">@edu.Degree in @edu.FieldOfStudy</h4>
+                                            <p class="text-sm sm:text-base text-green-600 font-medium">@edu.Institution</p>
+                                        </div>
+                                        <span class="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap w-fit">
+                                            @edu.GraduationYear
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            <!-- Quick Actions Grid - Responsive -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <!-- Profile Management -->
+                <div class="bg-white shadow rounded-lg p-4 sm:p-6 border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between mb-3 sm:mb-4">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-user-cog text-blue-500 mr-2 text-sm sm:text-base"></i>
+                            Profile Management
+                        </h3>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
+                            @Model.ProfileCompletion%
+                        </span>
+                    </div>
+                    <div class="space-y-2 sm:space-y-3">
+                        <a asp-page="/EditProfile" class="block p-2 sm:p-3 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all group">
+                            <div class="flex items-center justify-between">
+                                <span class="flex items-center text-sm sm:text-base text-gray-700 group-hover:text-blue-700">
+                                    <i class="fas fa-user-edit text-blue-500 mr-2 sm:mr-3 text-sm"></i>
+                                    Edit Personal Info
+                                </span>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-blue-500 text-xs sm:text-sm"></i>
+                            </div>
+                        </a>
+                        <a asp-page="/ResumeBuilder" class="block p-2 sm:p-3 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all group">
+                            <div class="flex items-center justify-between">
+                                <span class="flex items-center text-sm sm:text-base text-gray-700 group-hover:text-blue-700">
+                                    <i class="fas fa-file-upload text-orange-500 mr-2 sm:mr-3 text-sm"></i>
+                                    Upload Resume
+                                </span>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-blue-500 text-xs sm:text-sm"></i>
+                            </div>
+                        </a>
+                        <a asp-page="/EditProfile" class="block p-2 sm:p-3 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all group">
+                            <div class="flex items-center justify-between">
+                                <span class="flex items-center text-sm sm:text-base text-gray-700 group-hover:text-blue-700">
+                                    <i class="fas fa-image text-green-500 mr-2 sm:mr-3 text-sm"></i>
+                                    Update Profile Photo
+                                </span>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-blue-500 text-xs sm:text-sm"></i>
+                            </div>
+                        </a>
+                        <a asp-page="/EditProfile" class="block p-2 sm:p-3 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all group">
+                            <div class="flex items-center justify-between">
+                                <span class="flex items-center text-sm sm:text-base text-gray-700 group-hover:text-blue-700">
+                                    <i class="fas fa-briefcase text-purple-500 mr-2 sm:mr-3 text-sm"></i>
+                                    Professional Summary
+                                </span>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-blue-500 text-xs sm:text-sm"></i>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200">
+                        <a asp-page="/EditProfile" class="block text-center py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg text-sm sm:text-base font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md">
+                            <i class="fas fa-cog mr-2"></i>
+                            Manage Complete Profile
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Job Search - Responsive -->
+                <div class="bg-white shadow rounded-lg p-4 sm:p-6 border-l-4 border-green-500">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
+                        <i class="fas fa-search text-green-500 mr-2 text-sm sm:text-base"></i>
+                        Job Search
+                    </h3>
+                    <div class="space-y-2 sm:space-y-3">
+                        <a asp-page="/BrowseJobs" class="block p-2 sm:p-3 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-all group">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm sm:text-base text-gray-700 group-hover:text-green-700">
+                                    <i class="fas fa-briefcase text-green-600 mr-2"></i>Browse Jobs (@Model.ActiveJobsCount active)
+                                </span>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-500 text-xs sm:text-sm"></i>
+                            </div>
+                        </a>
+                        <a asp-page="/MyApplications" class="block p-2 sm:p-3 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-all group">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm sm:text-base text-gray-700 group-hover:text-green-700">
+                                    <i class="fas fa-file-alt text-blue-600 mr-2"></i>My Applications (@Model.ApplicationsCount)
+                                </span>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-500 text-xs sm:text-sm"></i>
+                            </div>
+                        </a>
+                        <a asp-page="/ResumeBuilder" class="block p-2 sm:p-3 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-all group">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm sm:text-base text-gray-700 group-hover:text-green-700">
+                                    <i class="fas fa-file-pdf text-red-600 mr-2"></i>Resume Builder
+                                </span>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-500 text-xs sm:text-sm"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Recent Activity - Responsive -->
+                <div class="bg-white shadow rounded-lg p-4 sm:p-6 border-l-4 border-purple-500">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
+                        <i class="fas fa-history text-purple-500 mr-2 text-sm sm:text-base"></i>
+                        Recent Activity
+                    </h3>
+                    <div class="space-y-2 sm:space-y-3">
+                        @if (Model.RecentActivities?.Any() == true)
+                        {
+                            @foreach (var activity in Model.RecentActivities.Take(3))
+                            {
+                                <div class="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    @{
+                                        var bgColorClass = activity.Color switch
+                                        {
+                                            "blue" => "bg-blue-100",
+                                            "green" => "bg-green-100",
+                                            "purple" => "bg-purple-100",
+                                            "red" => "bg-red-100",
+                                            "yellow" => "bg-yellow-100",
+                                            "orange" => "bg-orange-100",
+                                            _ => "bg-gray-100"
+                                        };
+
+                                        var textColorClass = activity.Color switch
+                                        {
+                                            "blue" => "text-blue-600",
+                                            "green" => "text-green-600",
+                                            "purple" => "text-purple-600",
+                                            "red" => "text-red-600",
+                                            "yellow" => "text-yellow-600",
+                                            "orange" => "text-orange-600",
+                                            _ => "text-gray-600"
+                                        };
+                                    }
+                                    <div class="@bgColorClass p-1.5 sm:p-2 rounded-full flex-shrink-0">
+                                        <i class="@activity.Icon @textColorClass text-xs sm:text-sm"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-medium text-gray-900 break-words">@activity.Title</p>
+                                        <p class="text-xs text-gray-500 break-words">@activity.Description</p>
+                                        <p class="text-xs text-gray-400 mt-1">@Model.GetRelativeTime(activity.Timestamp)</p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center py-4 sm:py-6 text-gray-500">
+                                <i class="fas fa-history text-2xl sm:text-3xl mb-2"></i>
+                                <p class="text-sm sm:text-base">No recent activity</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Matches Section - Responsive -->
+            @if (Model.JobMatches?.Any() == true)
+            {
+                <div class="mt-6 sm:mt-8 bg-white shadow rounded-lg p-4 sm:p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-star text-yellow-500 mr-2 text-base sm:text-lg"></i>
+                            Recommended Job Matches
+                        </h3>
+                        <a asp-page="/BrowseJobs" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            View All Jobs →
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                        @foreach (var job in Model.JobMatches.Take(3))
+                        {
+                            <div class="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-2">
+                                    <h4 class="font-semibold text-sm sm:text-base text-gray-900 flex-1">@job.JobTitle</h4>
+                                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full whitespace-nowrap w-fit">
+                                        @job.MatchPercentage% Match
+                                    </span>
+                                </div>
+                                <p class="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">@job.CompanyName</p>
+                                <p class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">@job.Location</p>
+                                @if (job.Salary.HasValue)
+                                {
+                                    <p class="text-xs sm:text-sm font-medium text-gray-900 mb-2">@Model.GetFormattedSalary(job.Salary)</p>
+                                }
+                                <div class="flex justify-between items-center mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-100">
+                                    <span class="text-xs text-gray-400">@Model.GetRelativeTime(job.PostedDate)</span>
+                                    <a asp-page="/JobDetails" asp-route-id="@job.JobId" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs sm:text-sm hover:bg-blue-700 transition-colors font-medium">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </main>
+</div>
+
+<!-- Font Awesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard loaded successfully');
+        });
+    </script>
+}

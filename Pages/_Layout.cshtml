@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -313,9 +313,9 @@
                     <button class="bg-white/10 hover:bg-white/20 text-primary-50 px-4 py-1 rounded-full text-xs font-semibold transition-all border border-white/20">
                         <i class="fas fa-certificate mr-1"></i> Get Certified
                     </button>
-                    <button class="bg-white text-primary-600 px-4 py-1 rounded-full text-xs font-semibold hover:bg-primary-50 transition-all">
-                        <i class="fas fa-user mr-1"></i> Sign In
-                    </button>
+                    <a asp-page="/SignupRole" class="bg-white text-primary-600 px-4 py-1 rounded-full text-xs font-semibold hover:bg-primary-50 transition-all inline-block">
+                        <i class="fas fa-user mr-1"></i> Sign Up
+                    </a>
                 </div>
             </div>
         </div>
@@ -336,10 +336,10 @@
 
                 <!-- Center Navigation -->
                 <div class="hidden lg:flex items-center space-x-1">
-                    <a href="/" class="nav-link">Home</a>
-                    <a href="/ApplicantSignup" class="nav-link">Find Jobs</a>
-                    <a href="/RecruiterSignup" class="nav-link">Hire Talent</a>
-                    <a href="/Login" class="nav-link">Login</a>
+                    <a asp-page="/Index" class="nav-link">Home</a>
+                    <a asp-page="/ApplicantSignup" class="nav-link">Find Jobs</a>
+                    <a asp-page="/RecruiterSignup" class="nav-link">Hire Talent</a>
+                    <a asp-page="/Login" class="nav-link">Login</a>
                 </div>
 
                 <!-- Search and Actions -->
@@ -395,19 +395,19 @@
 
             <!-- Mobile Navigation -->
             <nav class="space-y-2 flex-grow">
-                <a href="/" class="nav-link block">Home</a>
-                <a href="/ApplicantSignup" class="nav-link block">Find Jobs</a>
-                <a href="/RecruiterSignup" class="nav-link block">Hire Talent</a>
-                <a href="/Login" class="nav-link block">Login</a>
+                <a asp-page="/Index" class="nav-link block">Home</a>
+                <a asp-page="/ApplicantSignup" class="nav-link block">Find Jobs</a>
+                <a asp-page="/RecruiterSignup" class="nav-link block">Hire Talent</a>
+                <a asp-page="/Login" class="nav-link block">Login</a>
             </nav>
 
             <div class="space-y-3 pt-6 border-t border-gray-700/50">
-                <button class="w-full btn-glow py-3 rounded-lg font-semibold text-gray-900">
+                <a asp-page="/Login" class="w-full btn-glow py-3 rounded-lg font-semibold text-gray-900 inline-flex items-center justify-center">
                     <i class="fas fa-user mr-2"></i>Sign In
-                </button>
-                <button class="w-full btn-outline-glow py-3 rounded-lg font-semibold">
+                </a>
+                <a href="#" class="w-full btn-outline-glow py-3 rounded-lg font-semibold inline-flex items-center justify-center">
                     <i class="fas fa-certificate mr-2"></i>Get Certified
-                </button>
+                </a>
             </div>
         </div>
     </div>

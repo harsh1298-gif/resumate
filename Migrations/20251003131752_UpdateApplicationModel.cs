@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -20,3 +20,4 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
         }
     }
 }
+

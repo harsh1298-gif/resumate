@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace RESUMATE_FINAL_WORKING_MODEL.Models
@@ -9,11 +9,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Models
 
         [Required]
         [StringLength(100)]
-        public string? Company { get; set; } // Change
+        public string Company { get; set; } = null!; // Remove ? and add = null!
 
         [Required]
         [StringLength(100)]
-        public string? Position { get; set; } // Change
+        public string Position { get; set; } = null!; // Remove ? and add = null!
 
         [Required]
         [DataType(DataType.Date)]
@@ -23,6 +23,6 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Models
         public DateTime? EndDate { get; set; }
 
         public int ApplicantId { get; set; }
-        public Applicant? Applicant { get; set; } // Change
+        public Applicant? Applicant { get; set; } // This can stay nullable
     }
 }

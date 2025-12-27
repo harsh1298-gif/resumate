@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace RESUMATE_FINAL_WORKING_MODEL.Models

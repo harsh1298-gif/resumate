@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace RESUMATE_FINAL_WORKING_MODEL.Pages
@@ -18,3 +18,4 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
     }
 
 }
+

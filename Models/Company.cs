@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace RESUMATE_FINAL_WORKING_MODEL.Models
@@ -10,11 +10,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Models
         // Basic Information
         [Required]
         [MaxLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [Required]
         [MaxLength(2000)]
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
 
         [Required]
         public Industry Industry { get; set; }
@@ -29,7 +29,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Models
         // Contact Information
         [Required]
         [EmailAddress]
-        public string ContactEmail { get; set; }
+        public string ContactEmail { get; set; } = null!;
 
         [Phone]
         public string? ContactPhone { get; set; }

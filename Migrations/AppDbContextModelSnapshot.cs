@@ -17,7 +17,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.8")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -248,7 +248,8 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -297,11 +298,9 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Applicants");
                 });
@@ -340,7 +339,9 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Pending");
 
                     b.HasKey("Id");
 
@@ -583,8 +584,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal?>("Salary")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18, 2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -608,13 +608,21 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
 
             modelBuilder.Entity("RESUMATE_FINAL_WORKING_MODEL.Models.JobRequirement", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("JobId")
                         .HasColumnType("int");
 
                     b.Property<int>("SkillId")
                         .HasColumnType("int");
 
-                    b.HasKey("JobId", "SkillId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("JobId");
 
                     b.HasIndex("SkillId");
 
@@ -723,8 +731,26 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Category")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Level")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("YearsOfExperience")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -782,19 +808,10 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RESUMATE_FINAL_WORKING_MODEL.Models.Applicant", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("RESUMATE_FINAL_WORKING_MODEL.Models.ApplicantSkill", b =>
                 {
                     b.HasOne("RESUMATE_FINAL_WORKING_MODEL.Models.Applicant", "Applicant")
-                        .WithMany("Skills")
+                        .WithMany("ApplicantSkills")
                         .HasForeignKey("ApplicantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -862,7 +879,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
                     b.HasOne("RESUMATE_FINAL_WORKING_MODEL.Models.Recruiter", "Recruiter")
                         .WithMany("Jobs")
                         .HasForeignKey("RecruiterId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Company");
@@ -894,7 +911,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
                     b.HasOne("RESUMATE_FINAL_WORKING_MODEL.Models.Company", "Company")
                         .WithMany("Recruiters")
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RESUMATE_FINAL_WORKING_MODEL.Models.Recruiter", "Manager")
@@ -914,13 +931,13 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Migrations
 
             modelBuilder.Entity("RESUMATE_FINAL_WORKING_MODEL.Models.Applicant", b =>
                 {
+                    b.Navigation("ApplicantSkills");
+
                     b.Navigation("Applications");
 
                     b.Navigation("Educations");
 
                     b.Navigation("Experiences");
-
-                    b.Navigation("Skills");
                 });
 
             modelBuilder.Entity("RESUMATE_FINAL_WORKING_MODEL.Models.Company", b =>

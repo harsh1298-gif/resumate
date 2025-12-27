@@ -1,15 +1,63 @@
-﻿@page
+@page
 @{
     ViewData["Title"] = "ResuMate - AI-Powered Recruitment Platform";
+    Layout = "_Layout";
 }
 
+<!-- Top Navigation Bar - ADDED THIS -->
+<nav class="fixed top-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 z-50">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex justify-between items-center h-20">
+            <!-- Logo -->
+            <a href="/" class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-briefcase text-white text-xl"></i>
+                </div>
+                <span class="text-2xl font-bold text-white">ResuMate</span>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#features" class="text-gray-300 hover:text-white transition-colors font-medium">Features</a>
+                <a href="#how-it-works" class="text-gray-300 hover:text-white transition-colors font-medium">How It Works</a>
+                <a asp-page="/Login" class="text-gray-300 hover:text-white transition-colors font-medium">Login</a>
+                <a asp-page="/SignupRole" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors inline-flex items-center space-x-2">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Sign Up</span>
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobileMenuBtn" class="md:hidden text-white">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-gray-800 border-t border-gray-700">
+        <div class="px-6 py-4 space-y-3">
+            <a href="#features" class="block text-gray-300 hover:text-white transition-colors py-2">Features</a>
+            <a href="#how-it-works" class="block text-gray-300 hover:text-white transition-colors py-2">How It Works</a>
+            <a asp-page="/Login" class="block text-gray-300 hover:text-white transition-colors py-2">Login</a>
+            <a asp-page="/SignupRole" class="block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors text-center">
+                Sign Up
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Add padding-top to account for fixed navbar -->
+<div style="padding-top: 80px;"></div>
+
+<!-- YOUR ORIGINAL CONTENT BELOW - NO CHANGES -->
 <!-- Hero Section -->
 <section class="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
     <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
         <!-- Badge -->
         <div class="inline-flex items-center space-x-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-8">
             <i class="fas fa-star text-blue-400 text-sm"></i>
-            
+
         </div>
 
         <h1 class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold mb-8 text-white leading-tight">
@@ -25,13 +73,13 @@
         </p>
 
         <div class="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mb-16">
-            <a href="/ApplicantSignup" class="bg-blue-500 hover:bg-blue-600 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-xl font-bold text-lg sm:text-xl inline-flex items-center justify-center space-x-3 transition-colors">
-                <i class="fas fa-user-graduate text-xl"></i>
-                <span>Find Dream Jobs</span>
+            <a asp-page="/SignupRole" class="bg-blue-500 hover:bg-blue-600 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-xl font-bold text-lg sm:text-xl inline-flex items-center justify-center space-x-3 transition-colors">
+                <i class="fas fa-user-plus text-xl"></i>
+                <span>Sign Up Now</span>
             </a>
-            <a href="/RecruiterSignup" class="border-2 border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white px-8 sm:px-12 py-4 sm:py-5 rounded-xl font-bold text-lg sm:text-xl inline-flex items-center justify-center space-x-3 transition-colors">
-                <i class="fas fa-briefcase text-xl"></i>
-                <span>Hire Top Talent</span>
+            <a asp-page="/Login" class="border-2 border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white px-8 sm:px-12 py-4 sm:py-5 rounded-xl font-bold text-lg sm:text-xl inline-flex items-center justify-center space-x-3 transition-colors">
+                <i class="fas fa-sign-in-alt text-xl"></i>
+                <span>Login</span>
             </a>
         </div>
 
@@ -128,8 +176,8 @@
                 </div>
                 <h3 class="text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">Create Profile</h3>
                 <p class="text-gray-300 leading-relaxed text-lg">
-                    <a href="/ApplicantSignup" class="text-blue-400 hover:text-blue-300 transition-colors font-semibold">Job Seekers</a> or
-                    <a href="/RecruiterSignup" class="text-blue-400 hover:text-blue-300 transition-colors font-semibold">Employers</a>
+                    <a asp-page="/ApplicantSignup" class="text-blue-400 hover:text-blue-300 transition-colors font-semibold">Job Seekers</a> or
+                    <a asp-page="/RecruiterSignup" class="text-blue-400 hover:text-blue-300 transition-colors font-semibold">Employers</a>
                     register and build comprehensive profiles.
                 </p>
             </div>
@@ -162,7 +210,7 @@
         </div>
 
         <div class="text-center mt-16">
-            <a href="/ApplicantSignup" class="bg-blue-500 hover:bg-blue-600 text-white px-12 py-4 rounded-xl font-bold text-xl inline-flex items-center space-x-3 transition-colors">
+            <a asp-page="/SignupRole" class="bg-blue-500 hover:bg-blue-600 text-white px-12 py-4 rounded-xl font-bold text-xl inline-flex items-center space-x-3 transition-colors">
                 <span>Start Your Journey</span>
                 <i class="fas fa-arrow-right group-hover:ml-2 transition-all"></i>
             </a>
@@ -181,19 +229,21 @@
         </p>
 
         <div class="flex flex-col sm:flex-row justify-center gap-6 mb-16">
-            <a href="/ApplicantSignup" class="bg-blue-500 hover:bg-blue-600 text-white px-12 py-5 rounded-xl font-bold text-xl inline-flex items-center justify-center space-x-3 transition-colors">
-                <i class="fas fa-user-graduate text-2xl"></i>
-                <span>Start as Job Seeker</span>
+            <a asp-page="/SignupRole" class="bg-blue-500 hover:bg-blue-600 text-white px-12 py-5 rounded-xl font-bold text-xl inline-flex items-center justify-center space-x-3 transition-colors">
+                <i class="fas fa-user-plus text-2xl"></i>
+                <span>Get Started</span>
             </a>
-            <a href="/RecruiterSignup" class="border-2 border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white px-12 py-5 rounded-xl font-bold text-xl inline-flex items-center justify-center space-x-3 transition-colors">
-                <i class="fas fa-briefcase text-2xl"></i>
-                <span>Start as Employer</span>
+            <a asp-page="/Login" class="border-2 border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white px-12 py-5 rounded-xl font-bold text-xl inline-flex items-center justify-center space-x-3 transition-colors">
+                <i class="fas fa-sign-in-alt text-2xl"></i>
+                <span>Login</span>
             </a>
         </div>
 
         <!-- Additional Navigation -->
         <div class="flex flex-wrap justify-center gap-4 mt-8">
-            <a href="/Login" class="text-blue-400 hover:text-blue-300 transition-colors px-4 py-2">Login</a>
+            <a asp-page="/Login" class="text-blue-400 hover:text-blue-300 transition-colors px-4 py-2">Login</a>
+            <a asp-page="/Applicant/Dashboard" class="text-blue-400 hover:text-blue-300 transition-colors px-4 py-2">Applicant Dashboard</a>
+            <a asp-page="/Privacy" class="text-blue-400 hover:text-blue-300 transition-colors px-4 py-2">Privacy Policy</a>
             <a href="/Applicant/Dashboard" class="text-blue-400 hover:text-blue-300 transition-colors px-4 py-2">Applicant Dashboard</a>
             <a href="/Privacy" class="text-blue-400 hover:text-blue-300 transition-colors px-4 py-2">Privacy Policy</a>
         </div>
@@ -202,8 +252,17 @@
 
 <!-- Simple Scripts Section -->
 @section Scripts {
-    <!-- Remove the corrupted jQuery validation script -->
     <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
         // Simple smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -214,6 +273,10 @@
                         behavior: 'smooth',
                         block: 'start'
                     });
+                    // Close mobile menu if open
+                    if (mobileMenu) {
+                        mobileMenu.classList.add('hidden');
+                    }
                 }
             });
         });

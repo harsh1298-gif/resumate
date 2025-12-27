@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(dotnet run:*)",
+      "WebFetch(domain:localhost)",
+      "Bash(taskkill:*)",
+      "Bash(Get-Process)",
+      "Bash(Where-Object {$_ProcessName -like \"*RESUMATE*\"})",
+      "Bash(Select-Object Id, ProcessName, StartTime)",
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(netstat:*)",
+      "Bash(curl:*)",
+      "Bash(dotnet ef migrations:*)",
+      "Bash(dotnet tool list:*)",
+      "Bash(del '$null' nul)",
+      "Bash(cmd /c 'del /F \"\"$null\"\" nul')",
+      "Bash(python:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

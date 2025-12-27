@@ -6,36 +6,33 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net9.0/RESUMATE FINAL WORKING MODEL.dll",
+            "program": "${workspaceFolder}/bin/Debug/net8.0/RESUMATE_FINAL_WORKING_MODEL.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "stopAtEntry": false,
+            "launchBrowser": {
+                "enabled": true,
+                "args": "${auto-detect-url}",
+                "windows": {
+                    "command": "cmd.exe",
+                    "args": "/C start ${auto-detect-url}"
+                }
+            },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "https://localhost:5051;http://localhost:5050"
+                "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
-            },
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "\\\\bNow listexning on:\\\\s+(https?://\\\\S+)",
-                "uriFormat": "%s"
             }
         },
         {
             "name": "Launch Chrome",
             "type": "chrome",
             "request": "launch",
-            "url": "https://localhost:5001",
-            "webRoot": "${workspaceFolder}",
-            "runtimeArgs": [
-                "--disable-web-security",
-                "--allow-insecure-localhost",
-                "--ignore-certificate-errors"
-            ]
+            "url": "https://localhost:7021",
+            "webRoot": "${workspaceFolder}"
         }
     ]
 }
