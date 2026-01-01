@@ -51,6 +51,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
 
             // Get current user's applicant profile
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
             var applicant = await _context.Applicants
                 .Include(a => a.ApplicantSkills)
                     .ThenInclude(ask => ask.Skill)
@@ -118,6 +123,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
 
             // Get current user's applicant profile
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
             var applicant = await _context.Applicants
                 .FirstOrDefaultAsync(a => a.UserId == user.Id);
 
@@ -182,6 +192,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
             }
 
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return;
+            }
+
             var applicant = await _context.Applicants
                 .Include(a => a.ApplicantSkills)
                 .FirstOrDefaultAsync(a => a.UserId == user.Id);

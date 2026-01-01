@@ -1,0 +1,370 @@
+@page
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.Recruiter.Interviews.ListModel
+@{
+    ViewData["Title"] = "Interviews";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - ResuMate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="/RecruiterDashboard" class="text-2xl font-bold text-blue-600">
+                    <i class="fas fa-briefcase mr-2"></i>ResuMate
+                </a>
+                <span class="ml-4 text-gray-600">| @Model.CurrentRecruiter?.Company?.Name</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="/RecruiterDashboard" class="text-gray-600 hover:text-blue-600 transition">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                </a>
+                <form method="post" action="/Logout" class="inline">
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-20">
+        <!-- Page Header -->
+        <div class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-calendar-check text-pink-600 mr-2"></i>Interviews
+                </h1>
+                <p class="text-gray-600 mt-2">Manage all scheduled interviews</p>
+            </div>
+            <a href="/Recruiter/Interviews/Schedule" class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg transition font-semibold">
+                <i class="fas fa-calendar-plus mr-2"></i>Schedule New Interview
+            </a>
+        </div>
+
+        <!-- Alert Messages -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
+                <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+                <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+            </div>
+        }
+
+        <!-- Stats Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <p class="text-gray-500 text-sm">Total Interviews</p>
+                <p class="text-3xl font-bold text-gray-900">@Model.Interviews.Count</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <p class="text-gray-500 text-sm">Scheduled</p>
+                <p class="text-3xl font-bold text-blue-600">@Model.Interviews.Count(i => i.Status == InterviewStatus.Scheduled)</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <p class="text-gray-500 text-sm">Completed</p>
+                <p class="text-3xl font-bold text-green-600">@Model.Interviews.Count(i => i.Status == InterviewStatus.Completed)</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <p class="text-gray-500 text-sm">Cancelled</p>
+                <p class="text-3xl font-bold text-red-600">@Model.Interviews.Count(i => i.Status == InterviewStatus.Cancelled)</p>
+            </div>
+        </div>
+
+        <!-- View Toggle & Filters -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-wrap gap-4 items-center justify-between">
+                <!-- View Toggle -->
+                <div class="flex gap-2">
+                    <a href="?View=list@(!string.IsNullOrEmpty(Model.StatusFilter) ? $"&StatusFilter={Model.StatusFilter}" : "")"
+                       class="px-4 py-2 @(Model.View == "list" ? "bg-pink-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300") rounded-lg transition">
+                        <i class="fas fa-list mr-2"></i>List View
+                    </a>
+                    <a href="?View=calendar@(!string.IsNullOrEmpty(Model.StatusFilter) ? $"&StatusFilter={Model.StatusFilter}" : "")"
+                       class="px-4 py-2 @(Model.View == "calendar" ? "bg-pink-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300") rounded-lg transition">
+                        <i class="fas fa-calendar mr-2"></i>Calendar View
+                    </a>
+                </div>
+
+                <!-- Status Filter -->
+                <form method="get" class="flex gap-3">
+                    <input type="hidden" name="View" value="@Model.View">
+                    <select name="StatusFilter" asp-for="StatusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+
+        @if (!Model.Interviews.Any())
+        {
+            <div class="bg-white rounded-lg shadow-md p-12 text-center">
+                <i class="fas fa-calendar-times text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">No interviews found</h3>
+                <p class="text-gray-500 mb-6">Schedule your first interview to get started!</p>
+                <a href="/Recruiter/Interviews/Schedule" class="inline-block bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg transition">
+                    <i class="fas fa-calendar-plus mr-2"></i>Schedule Interview
+                </a>
+            </div>
+        }
+        else
+        {
+            @if (Model.View == "list")
+            {
+                <!-- List View -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Candidate</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Job</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Round</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach (var interview in Model.Interviews.OrderBy(i => i.ScheduledDateTime))
+                                {
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">@interview.CandidateName</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-gray-900">@interview.JobTitle</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">@interview.ScheduledDateTime.ToString("MMM dd, yyyy")</div>
+                                            <div class="text-sm text-gray-500">@interview.ScheduledDateTime.ToString("hh:mm tt")</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-sm text-gray-900">
+                                                @if (interview.Type == InterviewType.Video)
+                                                {
+                                                    <i class="fas fa-video text-blue-600 mr-1"></i>
+                                                }
+                                                else if (interview.Type == InterviewType.Phone)
+                                                {
+                                                    <i class="fas fa-phone text-green-600 mr-1"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-user-friends text-purple-600 mr-1"></i>
+                                                }
+                                                @interview.Type
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">@interview.Round</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @{
+                                                var statusClass = interview.Status switch
+                                                {
+                                                    InterviewStatus.Scheduled => "bg-blue-100 text-blue-800",
+                                                    InterviewStatus.Completed => "bg-green-100 text-green-800",
+                                                    InterviewStatus.Cancelled => "bg-red-100 text-red-800",
+                                                    _ => "bg-gray-100 text-gray-800"
+                                                };
+                                            }
+                                            <span class="px-2 py-1 rounded-full text-xs font-semibold @statusClass">
+                                                @interview.Status
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <div class="flex gap-2">
+                                                @if (!string.IsNullOrEmpty(interview.MeetingLink) && interview.Status == InterviewStatus.Scheduled)
+                                                {
+                                                    <a href="@interview.MeetingLink" target="_blank" class="text-blue-600 hover:text-blue-900" title="Join Meeting">
+                                                        <i class="fas fa-video"></i>
+                                                    </a>
+                                                }
+                                                @if (interview.Status == InterviewStatus.Scheduled)
+                                                {
+                                                    <button onclick="completeInterview(@interview.Id, '@interview.CandidateName')" class="text-green-600 hover:text-green-900" title="Mark Complete">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </button>
+                                                    <button onclick="cancelInterview(@interview.Id, '@interview.CandidateName')" class="text-red-600 hover:text-red-900" title="Cancel">
+                                                        <i class="fas fa-times-circle"></i>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Calendar View -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">
+                            @Model.Month?.ToString("MMMM yyyy")
+                        </h2>
+                        <div class="flex gap-2">
+                            <a href="?View=calendar&Month=@Model.Month?.AddMonths(-1).ToString("yyyy-MM-dd")"
+                               class="px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                            <a href="?View=calendar&Month=@Model.Month?.AddMonths(1).ToString("yyyy-MM-dd")"
+                               class="px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Calendar Grid -->
+                    <div class="grid grid-cols-7 gap-2">
+                        <!-- Day Headers -->
+                        @foreach (var day in new[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" })
+                        {
+                            <div class="text-center font-semibold text-gray-600 py-2">@day</div>
+                        }
+
+                        @{
+                            var firstDay = Model.Month ?? DateTime.Now;
+                            var daysInMonth = DateTime.DaysInMonth(firstDay.Year, firstDay.Month);
+                            var startDayOfWeek = (int)new DateTime(firstDay.Year, firstDay.Month, 1).DayOfWeek;
+
+                            // Empty cells before first day
+                            for (int i = 0; i < startDayOfWeek; i++)
+                            {
+                                <div class="border border-gray-200 rounded p-2 bg-gray-50 min-h-24"></div>
+                            }
+
+                            // Days of month
+                            for (int day = 1; day <= daysInMonth; day++)
+                            {
+                                var currentDate = new DateTime(firstDay.Year, firstDay.Month, day);
+                                var dayInterviews = Model.Interviews.Where(i => i.ScheduledDateTime.Date == currentDate).ToList();
+                                var isToday = currentDate.Date == DateTime.Today;
+
+                                <div class="border @(isToday ? "border-pink-500 border-2" : "border-gray-200") rounded p-2 min-h-24 @(isToday ? "bg-pink-50" : "bg-white")">
+                                    <div class="font-semibold text-sm @(isToday ? "text-pink-600" : "text-gray-900")">@day</div>
+                                    @if (dayInterviews.Any())
+                                    {
+                                        <div class="mt-1 space-y-1">
+                                            @foreach (var interview in dayInterviews.Take(3))
+                                            {
+                                                var dotColor = interview.Status switch
+                                                {
+                                                    InterviewStatus.Scheduled => "bg-blue-500",
+                                                    InterviewStatus.Completed => "bg-green-500",
+                                                    InterviewStatus.Cancelled => "bg-red-500",
+                                                    _ => "bg-gray-500"
+                                                };
+                                                <div class="text-xs truncate flex items-center">
+                                                    <span class="w-2 h-2 @dotColor rounded-full mr-1"></span>
+                                                    @interview.ScheduledDateTime.ToString("hh:mm tt") - @interview.CandidateName
+                                                </div>
+                                            }
+                                            @if (dayInterviews.Count > 3)
+                                            {
+                                                <div class="text-xs text-gray-500">+@(dayInterviews.Count - 3) more</div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="mt-6 flex gap-4 justify-center text-sm">
+                        <span><span class="inline-block w-3 h-3 bg-blue-500 rounded-full mr-1"></span> Scheduled</span>
+                        <span><span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-1"></span> Completed</span>
+                        <span><span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-1"></span> Cancelled</span>
+                    </div>
+                </div>
+            }
+        }
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-600">
+            <p>&copy; 2025 ResuMate. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        function completeInterview(id, candidateName) {
+            const feedback = prompt(`Enter feedback for ${candidateName}:`);
+            if (feedback !== null) {
+                const rating = prompt('Enter rating (1-5):');
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = '?handler=Complete';
+
+                const fields = {
+                    'interviewId': id,
+                    'feedback': feedback,
+                    'rating': rating
+                };
+
+                for (const [key, value] of Object.entries(fields)) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    form.appendChild(input);
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function cancelInterview(id, candidateName) {
+            if (confirm(`Cancel interview with ${candidateName}?`)) {
+                const reason = prompt('Cancellation reason (optional):');
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = '?handler=Cancel';
+
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'interviewId';
+                idInput.value = id;
+                form.appendChild(idInput);
+
+                if (reason) {
+                    const reasonInput = document.createElement('input');
+                    reasonInput.type = 'hidden';
+                    reasonInput.name = 'reason';
+                    reasonInput.value = reason;
+                    form.appendChild(reasonInput);
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

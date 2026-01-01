@@ -70,7 +70,7 @@
             <!-- Statistics Grid -->
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8">
                 <!-- Active Jobs -->
-                <div class="bg-white overflow-hidden shadow rounded-lg">
+                <a href="/Recruiter/Jobs/Active" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-xl transition-shadow cursor-pointer">
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
@@ -84,10 +84,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
 
                 <!-- Total Applicants -->
-                <div class="bg-white overflow-hidden shadow rounded-lg">
+                <a href="/Recruiter/Applicants/Browse" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-xl transition-shadow cursor-pointer">
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
@@ -101,10 +101,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
 
                 <!-- Pending Review -->
-                <div class="bg-white overflow-hidden shadow rounded-lg">
+                <a href="/Recruiter/Applicants/Browse?status=Pending" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-xl transition-shadow cursor-pointer">
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
@@ -118,10 +118,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
 
                 <!-- Shortlisted -->
-                <div class="bg-white overflow-hidden shadow rounded-lg">
+                <a href="/Recruiter/Applicants/Browse?status=Shortlisted" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-xl transition-shadow cursor-pointer">
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
@@ -135,10 +135,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
 
                 <!-- Hired -->
-                <div class="bg-white overflow-hidden shadow rounded-lg">
+                <a href="/Recruiter/Applicants/Browse?status=Hired" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-xl transition-shadow cursor-pointer">
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
@@ -152,10 +152,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
 
                 <!-- Scheduled Interviews -->
-                <div class="bg-white overflow-hidden shadow rounded-lg">
+                <a href="/Recruiter/Interviews/List" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-xl transition-shadow cursor-pointer">
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-pink-500 rounded-md p-3">
@@ -169,7 +169,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
 
             <!-- Recent Applicants -->
@@ -277,15 +277,15 @@
 
             <!-- Quick Actions -->
             <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <a href="#" class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors text-center">
+                <a href="/Recruiter/Jobs/Create" class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors text-center">
                     <i class="fas fa-plus-circle text-2xl mb-2"></i>
                     <p class="font-semibold">Post New Job</p>
                 </a>
-                <a href="#" class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors text-center">
+                <a href="/Recruiter/Applicants/Browse" class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors text-center">
                     <i class="fas fa-search text-2xl mb-2"></i>
                     <p class="font-semibold">Browse Applicants</p>
                 </a>
-                <a href="#" class="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors text-center">
+                <a href="/Recruiter/Interviews/Schedule" class="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors text-center">
                     <i class="fas fa-calendar-alt text-2xl mb-2"></i>
                     <p class="font-semibold">Schedule Interview</p>
                 </a>

@@ -117,8 +117,12 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
 
             // Get current user's applicant ID to check if already applied
             var user = await _userManager.GetUserAsync(User);
-            var applicant = await _context.Applicants
-                .FirstOrDefaultAsync(a => a.UserId == user.Id);
+            Models.Applicant? applicant = null;
+            if (user != null)
+            {
+                applicant = await _context.Applicants
+                    .FirstOrDefaultAsync(a => a.UserId == user.Id);
+            }
 
             // Map to view model
             Jobs = jobs.Select(j => new JobViewModel

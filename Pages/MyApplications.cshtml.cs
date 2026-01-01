@@ -40,6 +40,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
         {
             // Get current user's applicant profile
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
             var applicant = await _context.Applicants
                 .FirstOrDefaultAsync(a => a.UserId == user.Id);
 
@@ -51,7 +56,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
 
             // Get all applications for this applicant
             var applicationsQuery = _context.Applications
-                .Include(a => a.Job)
+                .Include(a => a.Job!)
                     .ThenInclude(j => j.Company)
                 .Where(a => a.ApplicantId == applicant.Id)
                 .AsQueryable();
@@ -120,6 +125,12 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
 
             // Verify ownership
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                TempData["Error"] = "Unauthorized action.";
+                return RedirectToPage();
+            }
+
             var applicant = await _context.Applicants
                 .FirstOrDefaultAsync(a => a.UserId == user.Id);
 

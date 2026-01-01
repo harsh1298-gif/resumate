@@ -21,6 +21,8 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Data
         public DbSet<Job> Jobs { get; set; }
         public DbSet<Recruiter> Recruiters { get; set; }
         public DbSet<JobRequirement> JobRequirements { get; set; }
+        public DbSet<Interview> Interviews { get; set; }
+        public DbSet<RecruiterNote> RecruiterNotes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -166,6 +168,68 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Data
             {
                 entity.HasKey(a => a.Id);
                 entity.Property(a => a.Status).IsRequired().HasDefaultValue("Pending");
+
+                // Configure relationship with ReviewedBy
+                entity.HasOne(a => a.ReviewedBy)
+                      .WithMany()
+                      .HasForeignKey(a => a.ReviewedByRecruiterId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Configure relationship with Notes
+                entity.HasMany(a => a.Notes)
+                      .WithOne(n => n.Application)
+                      .HasForeignKey(n => n.ApplicationId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Configure relationship with Interviews
+                entity.HasMany(a => a.Interviews)
+                      .WithOne(i => i.Application)
+                      .HasForeignKey(i => i.ApplicationId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure Interview
+            modelBuilder.Entity<Interview>(entity =>
+            {
+                entity.HasKey(i => i.Id);
+                entity.Property(i => i.ScheduledDateTime).IsRequired();
+                entity.Property(i => i.DurationMinutes).IsRequired();
+                entity.Property(i => i.Type).IsRequired();
+                entity.Property(i => i.Round).IsRequired();
+                entity.Property(i => i.Status).IsRequired();
+                entity.Property(i => i.CreatedAt).IsRequired();
+
+                // Configure relationship with Application
+                entity.HasOne(i => i.Application)
+                      .WithMany(a => a.Interviews)
+                      .HasForeignKey(i => i.ApplicationId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Configure relationship with Recruiter
+                entity.HasOne(i => i.Recruiter)
+                      .WithMany()
+                      .HasForeignKey(i => i.RecruiterId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure RecruiterNote
+            modelBuilder.Entity<RecruiterNote>(entity =>
+            {
+                entity.HasKey(n => n.Id);
+                entity.Property(n => n.NoteText).IsRequired().HasMaxLength(5000);
+                entity.Property(n => n.CreatedAt).IsRequired();
+
+                // Configure relationship with Application
+                entity.HasOne(n => n.Application)
+                      .WithMany(a => a.Notes)
+                      .HasForeignKey(n => n.ApplicationId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Configure relationship with Recruiter
+                entity.HasOne(n => n.Recruiter)
+                      .WithMany()
+                      .HasForeignKey(n => n.RecruiterId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

@@ -211,6 +211,10 @@ namespace RESUMATE_FINAL_WORKING_MODEL
                 }
             });
 
+            // Add custom application services
+            builder.Services.AddScoped<RESUMATE_FINAL_WORKING_MODEL.Services.IEmailService, RESUMATE_FINAL_WORKING_MODEL.Services.EmailService>();
+            builder.Services.AddScoped<RESUMATE_FINAL_WORKING_MODEL.Services.IIcsCalendarService, RESUMATE_FINAL_WORKING_MODEL.Services.IcsCalendarService>();
+
             // Add services to the container
             builder.Services.AddRazorPages();
 

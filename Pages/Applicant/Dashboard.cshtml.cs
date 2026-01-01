@@ -50,13 +50,15 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages.Applicant
 
             // Get recent applications
             RecentApplications = await _context.Applications
+                .Include(a => a.Job!)
+                    .ThenInclude(j => j.Company)
                 .Where(a => a.ApplicantId == applicant.Id)
                 .OrderByDescending(a => a.ApplicationDate)
                 .Take(5)
                 .Select(a => new ApplicationViewModel
                 {
-                    JobTitle = a.Job.Title,
-                    CompanyName = a.Job.Company.Name,
+                    JobTitle = a.Job != null ? a.Job.Title : "Unknown Job",
+                    CompanyName = a.Job != null && a.Job.Company != null ? a.Job.Company.Name : "Unknown Company",
                     AppliedDate = a.ApplicationDate,
                     Status = a.Status
                 })

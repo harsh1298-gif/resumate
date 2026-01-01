@@ -54,7 +54,10 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
             catch (Exception ex)
             {
                 Logs.Add($"ERROR: {ex.Message}");
-                Logs.Add(ex.StackTrace);
+                if (ex.StackTrace != null)
+                {
+                    Logs.Add(ex.StackTrace);
+                }
             }
 
             return Page();

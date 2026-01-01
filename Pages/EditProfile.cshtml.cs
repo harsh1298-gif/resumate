@@ -207,7 +207,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
                 else
                 {
                     // Update existing profile - only update properties that exist
-                    _logger.LogInformation("UPDATING existing applicant ID: {ApplicantId}", applicant.Id);
+                    _logger.LogInformation("UPDATING existing applicant ID: {ApplicantId}", applicant!.Id);
 
                     applicant.FullName = FullName;
                     applicant.Email = Email;

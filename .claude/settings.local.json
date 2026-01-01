@@ -17,7 +17,12 @@
       "Bash(del '$null' nul)",
       "Bash(cmd /c 'del /F \"\"$null\"\" nul')",
       "Bash(python:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(dotnet ef database update:*)",
+      "Bash(git fetch:*)"
     ]
   }
 }

@@ -1,0 +1,244 @@
+@page
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.Recruiter.Jobs.ActiveModel
+@{
+    ViewData["Title"] = "Active Jobs";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - ResuMate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="/RecruiterDashboard" class="text-2xl font-bold text-blue-600">
+                    <i class="fas fa-briefcase mr-2"></i>ResuMate
+                </a>
+                <span class="ml-4 text-gray-600">| @Model.CurrentRecruiter?.Company?.Name</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="/RecruiterDashboard" class="text-gray-600 hover:text-blue-600 transition">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                </a>
+                <form method="post" action="/Logout" class="inline">
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-20">
+        <!-- Page Header -->
+        <div class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-briefcase text-blue-600 mr-2"></i>Job Postings
+                </h1>
+                <p class="text-gray-600 mt-2">Manage all your job postings</p>
+            </div>
+            <a href="/Recruiter/Jobs/Create" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition font-semibold">
+                <i class="fas fa-plus-circle mr-2"></i>Post New Job
+            </a>
+        </div>
+
+        <!-- Alert Messages -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
+                <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+                <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+            </div>
+        }
+
+        <!-- Filters and Sort -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <form method="get" class="flex flex-wrap gap-4">
+                <!-- Status Filter -->
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select name="StatusFilter" asp-for="StatusFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onchange="this.form.submit()">
+                        <option value="">All Jobs</option>
+                        <option value="Active">Active Only</option>
+                        <option value="Inactive">Inactive Only</option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                    <select name="SortBy" asp-for="SortBy" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onchange="this.form.submit()">
+                        <option value="">Most Recent</option>
+                        <option value="Title">Title (A-Z)</option>
+                        <option value="Date">Posted Date</option>
+                        <option value="Applicants">Applicant Count</option>
+                    </select>
+                </div>
+
+                <!-- Reset Button -->
+                <div class="flex items-end">
+                    <a href="/Recruiter/Jobs/Active" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition">
+                        <i class="fas fa-redo mr-2"></i>Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Jobs Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Jobs</p>
+                        <p class="text-3xl font-bold text-gray-900">@Model.Jobs.Count</p>
+                    </div>
+                    <i class="fas fa-briefcase text-blue-500 text-3xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Active</p>
+                        <p class="text-3xl font-bold text-green-600">@Model.Jobs.Count(j => j.IsActive)</p>
+                    </div>
+                    <i class="fas fa-check-circle text-green-500 text-3xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Applicants</p>
+                        <p class="text-3xl font-bold text-purple-600">@Model.Jobs.Sum(j => j.TotalApplicants)</p>
+                    </div>
+                    <i class="fas fa-users text-purple-500 text-3xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Hired</p>
+                        <p class="text-3xl font-bold text-indigo-600">@Model.Jobs.Sum(j => j.HiredApplicants)</p>
+                    </div>
+                    <i class="fas fa-user-check text-indigo-500 text-3xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jobs List -->
+        @if (!Model.Jobs.Any())
+        {
+            <div class="bg-white rounded-lg shadow-md p-12 text-center">
+                <i class="fas fa-inbox text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">No job postings found</h3>
+                <p class="text-gray-500 mb-6">Get started by creating your first job posting!</p>
+                <a href="/Recruiter/Jobs/Create" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition">
+                    <i class="fas fa-plus-circle mr-2"></i>Post New Job
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="space-y-6">
+                @foreach (var job in Model.Jobs)
+                {
+                    <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-xl font-semibold text-gray-900">@job.Title</h3>
+                                    @if (job.IsActive)
+                                    {
+                                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold">Inactive</span>
+                                    }
+                                </div>
+                                <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                                    <span><i class="fas fa-map-marker-alt mr-1"></i>@job.Location</span>
+                                    <span><i class="fas fa-briefcase mr-1"></i>@job.Type</span>
+                                    <span><i class="fas fa-star mr-1"></i>@job.ExperienceLevel</span>
+                                    <span><i class="fas fa-calendar mr-1"></i>Posted @job.PostedDate.ToString("MMM dd, yyyy")</span>
+                                    @if (job.ApplicationDeadline.HasValue)
+                                    {
+                                        var daysLeft = (job.ApplicationDeadline.Value - DateTime.Today).Days;
+                                        <span class="@(daysLeft < 7 ? "text-red-600 font-semibold" : "")">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            Deadline: @job.ApplicationDeadline.Value.ToString("MMM dd, yyyy")
+                                            (@daysLeft days left)
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Statistics -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+                            <div class="text-center">
+                                <p class="text-2xl font-bold text-gray-900">@job.TotalApplicants</p>
+                                <p class="text-xs text-gray-600">Total Applicants</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-2xl font-bold text-yellow-600">@job.PendingApplicants</p>
+                                <p class="text-xs text-gray-600">Pending</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-2xl font-bold text-purple-600">@job.ShortlistedApplicants</p>
+                                <p class="text-xs text-gray-600">Shortlisted</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-2xl font-bold text-indigo-600">@job.HiredApplicants</p>
+                                <p class="text-xs text-gray-600">Hired</p>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex flex-wrap gap-3">
+                            <a href="/Recruiter/Applicants/Browse?jobId=@job.Id" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm">
+                                <i class="fas fa-users mr-1"></i>View Applicants
+                            </a>
+                            <form method="post" asp-page-handler="ToggleStatus" asp-route-jobId="@job.Id" class="inline">
+                                <button type="submit" class="px-4 py-2 @(job.IsActive ? "bg-yellow-500 hover:bg-yellow-600" : "bg-green-500 hover:bg-green-600") text-white rounded-lg transition text-sm">
+                                    <i class="fas @(job.IsActive ? "fa-pause" : "fa-play") mr-1"></i>
+                                    @(job.IsActive ? "Deactivate" : "Activate")
+                                </button>
+                            </form>
+                            <button onclick="alert('Edit functionality coming soon!')" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition text-sm">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </button>
+                            <button onclick="alert('Analytics feature coming soon!')" class="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition text-sm">
+                                <i class="fas fa-chart-bar mr-1"></i>Analytics
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-600">
+            <p>&copy; 2025 ResuMate. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

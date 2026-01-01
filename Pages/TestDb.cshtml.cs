@@ -15,9 +15,9 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
             _logger = logger;
         }
 
-        public string ConnectionStatus { get; set; }
-        public string ApplicantsCount { get; set; }
-        public string ErrorMessage { get; set; }
+        public string ConnectionStatus { get; set; } = string.Empty;
+        public string ApplicantsCount { get; set; } = string.Empty;
+        public string ErrorMessage { get; set; } = string.Empty;
         public List<string> DatabaseDetails { get; set; } = new();
 
         public async Task OnGetAsync()

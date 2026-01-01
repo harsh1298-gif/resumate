@@ -80,7 +80,11 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
                 a.Status == "Pending" || a.Status == "Under Review" || string.IsNullOrEmpty(a.Status));
             Dashboard.Statistics.ShortlistedCount = applications.Count(a => a.Status == "Shortlisted");
             Dashboard.Statistics.HiredCount = applications.Count(a => a.Status == "Hired");
-            Dashboard.Statistics.ScheduledInterviewsCount = 0;
+
+            // Count scheduled interviews
+            Dashboard.Statistics.ScheduledInterviewsCount = await _context.Interviews
+                .Where(i => i.RecruiterId == recruiter.Id && i.Status == InterviewStatus.Scheduled)
+                .CountAsync();
 
             // Recent applicants
             Dashboard.RecentApplicants = applications

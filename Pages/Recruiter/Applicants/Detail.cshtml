@@ -1,0 +1,352 @@
+@page
+@model RESUMATE_FINAL_WORKING_MODEL.Pages.Recruiter.Applicants.DetailModel
+@{
+    ViewData["Title"] = "Applicant Detail";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - ResuMate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="/RecruiterDashboard" class="text-2xl font-bold text-blue-600">
+                    <i class="fas fa-briefcase mr-2"></i>ResuMate
+                </a>
+                <span class="ml-4 text-gray-600">| Applicant Detail</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="/Recruiter/Applicants/Browse" class="text-gray-600 hover:text-blue-600 transition">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to List
+                </a>
+                <form method="post" action="/Logout" class="inline">
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-20">
+        <!-- Alert Messages -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
+                <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+                <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+            </div>
+        }
+
+        @if (Model.Application != null)
+        {
+            <!-- Header Section -->
+            <div class="bg-white rounded-lg shadow-md p-8 mb-6">
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center">
+                        <img src="@(Model.Application.Applicant?.ProfilePhotoPath ?? "/images/default-avatar.png")"
+                             alt="@Model.Application.Applicant?.FullName"
+                             class="w-24 h-24 rounded-full border-4 border-blue-100">
+                        <div class="ml-6">
+                            <h1 class="text-3xl font-bold text-gray-900">@Model.Application.Applicant?.FullName</h1>
+                            <div class="mt-2 space-y-1 text-gray-600">
+                                <p><i class="fas fa-envelope mr-2"></i>@Model.Application.Applicant?.Email</p>
+                                <p><i class="fas fa-phone mr-2"></i>@Model.Application.Applicant?.PhoneNumber</p>
+                                @if (!string.IsNullOrEmpty(Model.Application.Applicant?.City))
+                                {
+                                    <p><i class="fas fa-map-marker-alt mr-2"></i>@Model.Application.Applicant?.City, @Model.Application.Applicant?.Address</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        @{
+                            var statusClass = Model.Application.Status switch
+                            {
+                                "Pending" => "bg-yellow-100 text-yellow-800 border-yellow-300",
+                                "Under Review" => "bg-blue-100 text-blue-800 border-blue-300",
+                                "Shortlisted" => "bg-purple-100 text-purple-800 border-purple-300",
+                                "Interview Scheduled" => "bg-pink-100 text-pink-800 border-pink-300",
+                                "Hired" => "bg-indigo-100 text-indigo-800 border-indigo-300",
+                                "Rejected" => "bg-red-100 text-red-800 border-red-300",
+                                _ => "bg-gray-100 text-gray-800 border-gray-300"
+                            };
+                        }
+                        <span class="px-4 py-2 rounded-lg border-2 text-sm font-bold @statusClass inline-block mb-4">
+                            @Model.Application.Status
+                        </span>
+                        <div class="text-sm text-gray-600">
+                            Applied: @Model.Application.ApplicationDate.ToString("MMM dd, yyyy")
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Summary -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-sm font-semibold text-gray-500 mb-2">Applied For</h3>
+                    <p class="text-xl font-bold text-gray-900">@Model.Application.Job?.Title</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-sm font-semibold text-gray-500 mb-2">Company</h3>
+                    <p class="text-xl font-bold text-gray-900">@Model.Application.Job?.Company?.Name</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-sm font-semibold text-gray-500 mb-2">Reviewed By</h3>
+                    <p class="text-xl font-bold text-gray-900">@(Model.Application.ReviewedBy?.Name ?? "Not Yet Reviewed")</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+                <div class="flex flex-wrap gap-3">
+                    <form method="post" asp-page-handler="ChangeStatus" asp-route-id="@Model.Application.Id" class="inline">
+                        <input type="hidden" name="newStatus" value="Under Review">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                            <i class="fas fa-eye mr-2"></i>Mark Under Review
+                        </button>
+                    </form>
+                    <form method="post" asp-page-handler="ChangeStatus" asp-route-id="@Model.Application.Id" class="inline">
+                        <input type="hidden" name="newStatus" value="Shortlisted">
+                        <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">
+                            <i class="fas fa-star mr-2"></i>Shortlist
+                        </button>
+                    </form>
+                    <a href="/Recruiter/Interviews/Schedule?applicationId=@Model.Application.Id" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition">
+                        <i class="fas fa-calendar-plus mr-2"></i>Schedule Interview
+                    </a>
+                    <form method="post" asp-page-handler="ChangeStatus" asp-route-id="@Model.Application.Id" class="inline">
+                        <input type="hidden" name="newStatus" value="Hired">
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">
+                            <i class="fas fa-user-check mr-2"></i>Mark as Hired
+                        </button>
+                    </form>
+                    <form method="post" asp-page-handler="ChangeStatus" asp-route-id="@Model.Application.Id" class="inline">
+                        <input type="hidden" name="newStatus" value="Rejected">
+                        <button type="submit" onclick="return confirm('Are you sure you want to reject this applicant?')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">
+                            <i class="fas fa-times-circle mr-2"></i>Reject
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Professional Summary -->
+                    @if (!string.IsNullOrEmpty(Model.Application.Applicant?.ProfessionalSummary))
+                    {
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-user-tie text-blue-600 mr-2"></i>Professional Summary
+                            </h2>
+                            <p class="text-gray-700">@Model.Application.Applicant.ProfessionalSummary</p>
+                        </div>
+                    }
+
+                    <!-- Resume -->
+                    @if (!string.IsNullOrEmpty(Model.Application.Applicant?.ResumeFilePath))
+                    {
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-file-pdf text-red-600 mr-2"></i>Resume
+                            </h2>
+                            <div class="space-y-3">
+                                <p class="text-sm text-gray-600">
+                                    <i class="fas fa-file mr-2"></i>@Model.Application.Applicant.ResumeFileName
+                                </p>
+                                <div class="flex gap-3">
+                                    <a href="@Model.Application.Applicant.ResumeFilePath" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                                        <i class="fas fa-external-link-alt mr-2"></i>View Resume
+                                    </a>
+                                    <a href="@Model.Application.Applicant.ResumeFilePath" download class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition">
+                                        <i class="fas fa-download mr-2"></i>Download
+                                    </a>
+                                </div>
+                                <!-- PDF Preview -->
+                                <div class="mt-4 border-2 border-gray-200 rounded-lg overflow-hidden" style="height: 600px;">
+                                    <iframe src="@Model.Application.Applicant.ResumeFilePath" class="w-full h-full"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Cover Letter -->
+                    @if (!string.IsNullOrEmpty(Model.Application.CoverLetter))
+                    {
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-envelope-open-text text-purple-600 mr-2"></i>Cover Letter
+                            </h2>
+                            <p class="text-gray-700 whitespace-pre-line">@Model.Application.CoverLetter</p>
+                        </div>
+                    }
+
+                    <!-- Work Experience -->
+                    @if (Model.Application.Applicant?.Experiences?.Any() == true)
+                    {
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-briefcase text-green-600 mr-2"></i>Work Experience
+                            </h2>
+                            <div class="space-y-4">
+                                @foreach (var exp in Model.Application.Applicant.Experiences.OrderByDescending(e => e.StartDate))
+                                {
+                                    <div class="border-l-4 border-blue-500 pl-4">
+                                        <h3 class="font-semibold text-gray-900">@exp.Position</h3>
+                                        <p class="text-sm text-gray-600">@exp.Company</p>
+                                        <p class="text-xs text-gray-500">
+                                            @exp.StartDate.ToString("MMM yyyy") - @(exp.EndDate?.ToString("MMM yyyy") ?? "Present")
+                                        </p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Education -->
+                    @if (Model.Application.Applicant?.Educations?.Any() == true)
+                    {
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-graduation-cap text-indigo-600 mr-2"></i>Education
+                            </h2>
+                            <div class="space-y-4">
+                                @foreach (var edu in Model.Application.Applicant.Educations.OrderByDescending(e => e.GraduationYear))
+                                {
+                                    <div class="border-l-4 border-purple-500 pl-4">
+                                        <h3 class="font-semibold text-gray-900">@edu.Degree in @edu.FieldOfStudy</h3>
+                                        <p class="text-sm text-gray-600">@edu.Institution</p>
+                                        <p class="text-xs text-gray-500">Graduated: @edu.GraduationYear</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <!-- Skills -->
+                    @if (Model.Application.Applicant?.ApplicantSkills?.Any() == true)
+                    {
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-tools text-orange-600 mr-2"></i>Skills
+                            </h2>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach (var skill in Model.Application.Applicant.ApplicantSkills)
+                                {
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                                        @skill.Skill?.Name
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Interview History -->
+                    @if (Model.Interviews.Any())
+                    {
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-calendar-check text-pink-600 mr-2"></i>Interview History
+                            </h2>
+                            <div class="space-y-3">
+                                @foreach (var interview in Model.Interviews)
+                                {
+                                    var interviewStatusClass = interview.Status switch
+                                    {
+                                        InterviewStatus.Scheduled => "bg-blue-100 text-blue-800",
+                                        InterviewStatus.Completed => "bg-green-100 text-green-800",
+                                        InterviewStatus.Cancelled => "bg-red-100 text-red-800",
+                                        _ => "bg-gray-100 text-gray-800"
+                                    };
+                                    <div class="border border-gray-200 rounded-lg p-3">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <span class="font-semibold text-gray-900">@interview.Round Interview</span>
+                                            <span class="px-2 py-1 rounded text-xs font-semibold @interviewStatusClass">@interview.Status</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600"><i class="fas fa-calendar mr-1"></i>@interview.ScheduledDateTime.ToString("MMM dd, yyyy hh:mm tt")</p>
+                                        <p class="text-sm text-gray-600"><i class="fas fa-video mr-1"></i>@interview.Type</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Recruiter Notes -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-sticky-note text-yellow-600 mr-2"></i>Recruiter Notes
+                        </h2>
+
+                        <!-- Add Note Form -->
+                        <form method="post" asp-page-handler="AddNote" asp-route-id="@Model.Application.Id" class="mb-4">
+                            <textarea asp-for="NoteInput.NoteText" rows="3" placeholder="Add a private note..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-2"></textarea>
+                            <div class="flex justify-between items-center">
+                                <label class="inline-flex items-center">
+                                    <input asp-for="NoteInput.IsImportant" type="checkbox" class="form-checkbox h-4 w-4 text-red-600 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Mark as important</span>
+                                </label>
+                                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm">
+                                    <i class="fas fa-plus mr-1"></i>Add Note
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Notes List -->
+                        <div class="space-y-3">
+                            @if (Model.Notes.Any())
+                            {
+                                @foreach (var note in Model.Notes)
+                                {
+                                    <div class="border @(note.IsImportant ? "border-red-300 bg-red-50" : "border-gray-200") rounded-lg p-3">
+                                        @if (note.IsImportant)
+                                        {
+                                            <span class="text-xs text-red-600 font-semibold mb-1 block"><i class="fas fa-exclamation-circle mr-1"></i>IMPORTANT</span>
+                                        }
+                                        <p class="text-sm text-gray-900 mb-2">@note.NoteText</p>
+                                        <div class="text-xs text-gray-500">
+                                            <i class="fas fa-user mr-1"></i>@note.Recruiter?.Name
+                                            <span class="mx-2">•</span>
+                                            <i class="fas fa-clock mr-1"></i>@note.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-sm text-gray-500 italic">No notes yet</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-600">
+            <p>&copy; 2025 ResuMate. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
