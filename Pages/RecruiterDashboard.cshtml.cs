@@ -55,7 +55,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
             return Page();
         }
 
-        private async Task BuildDashboardAsync(Recruiter recruiter, IdentityUser user)
+        private async Task BuildDashboardAsync(Models.Recruiter recruiter, IdentityUser user)
         {
             Dashboard.RecruiterName = recruiter.Name;
             Dashboard.CompanyName = recruiter.Company?.Name ?? "Your Company";

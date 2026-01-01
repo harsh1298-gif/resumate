@@ -195,7 +195,7 @@ namespace RESUMATE_FINAL_WORKING_MODEL.Pages
                     await _context.SaveChangesAsync();
 
                     // Create Recruiter
-                    var recruiter = new Recruiter
+                    var recruiter = new Models.Recruiter
                     {
                         Name = Input.FullName,
                         Email = Input.Email,
